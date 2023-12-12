@@ -1,20 +1,14 @@
 require('dotenv').config();
 import express from 'express';
 import expressEjsLayouts from 'express-ejs-layouts';
-
-import router from './server/routes/main';
-// ##########################################################
+import mainRouter from './server/routes/main';
 
 // instance of express
 const app = express();
 
-// ###########################################################
-
 // middle ware
 app.use(expressEjsLayouts);
 app.use(express.static('static'));
-
-// ##############################################################
 
 // Templates ENgine
 
@@ -24,16 +18,11 @@ app.set('layout', './layouts/main');
 // specify the template engine to be used
 app.set('view engine', 'ejs');
 
-// #################################################################
 // port
 const PORT = process.env.PORT || 5000;
 
-// ################################################################
-// get methods
-app.get('/', router);
-app.get('/about', router);
-
-// ###############################################################
+// get methods for Home and about pages
+app.use('/', mainRouter);
 
 // event listener
 app.listen(PORT, () => {
