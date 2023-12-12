@@ -14,3 +14,12 @@ export const getAboutPage = (req, res) => {
   };
   res.render('about', locals);
 };
+
+export const getContactPage = (req, res) => {
+  const locals = {
+    title: 'Contact Us',
+    description: 'Get in touch with us',
+  };
+
+  res.render('contact', locals);
+};
