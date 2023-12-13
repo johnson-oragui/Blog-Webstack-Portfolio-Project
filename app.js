@@ -2,6 +2,7 @@ require('dotenv').config();
 import express from 'express';
 import expressEjsLayouts from 'express-ejs-layouts';
 import mainRouter from './server/routes/main';
+import dbConnect from './utils/db';
 
 // instance of express
 const app = express();
@@ -9,6 +10,9 @@ const app = express();
 // middle ware
 app.use(expressEjsLayouts);
 app.use(express.static('static'));
+
+// Connect to MongoDB
+dbConnect();
 
 // Templates ENgine
 
