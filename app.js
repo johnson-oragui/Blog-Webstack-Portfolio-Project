@@ -7,6 +7,9 @@ import dbConnect from './utils/db';
 // instance of express
 const app = express();
 
+// middleware for parsing JSON in request bodies
+app.use(express.json());
+
 // middle ware
 app.use(expressEjsLayouts);
 app.use(express.static('static'));
