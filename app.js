@@ -6,6 +6,8 @@ import expressEjsLayouts from 'express-ejs-layouts';
 import mainRouter from './server/routes/main';
 import errorRouter from './server/routes/error';
 import dbConnect from './utils/db';
+// import error classes from custom file
+import { NotFoundError, UnauthorizedError } from './errorClasses';
 
 const rotatingFileStream = require('rotating-file-stream');
 
@@ -21,7 +23,7 @@ const dir = fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 const accessLogStream = rotatingFileStream.createStream('access.log', {
   size: '10M', // rotate every 10 MegaBytes written
   interval: '1d', // rotate daily
-  path: logDirectory,
+  path: logDirectory, // path to the log directory
 });
 
 // Log Http requests to the console
@@ -64,7 +66,7 @@ app.use((err, req, res, next) => {
   } else {
     // Default error handling
     res.status(500).render('error500', { locals: { title: '500 Internal Server Error', description: 'Internal server error' } });
-  }
+  } next();
 });
 
 // event listener
