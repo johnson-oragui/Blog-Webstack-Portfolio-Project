@@ -17,6 +17,7 @@ const logDirectory = path.join(__dirname, 'logs');
 const dir = fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
 
 const accessLogStream = rfs('access.log', {
+  size: '10M', // rotate every 10 MegaBytes written
   interval: '1d', // rotate daily
   path: dir,
 });

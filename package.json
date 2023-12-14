@@ -31,7 +31,9 @@
         "method-override": "^3.0.0",
         "mime-types": "^2.1.27",
         "mongoose": "^8.0.3",
+        "morgan": "^1.10.0",
         "redis": "^4.6.11",
+        "rotating-file-stream": "^3.1.1",
         "uuid": "^8.2.0"
     },
     "devDependencies": {
