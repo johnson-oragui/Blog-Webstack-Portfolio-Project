@@ -1,7 +1,7 @@
 import Post from '../models/post';
 import mongoose from 'mongoose';
 
-export const getHomePage = async (req, res) => {
+export const getHomePage = async (req, res, next) => {
   try {
     const locals = {
       title: 'Home Page',
@@ -32,11 +32,12 @@ export const getHomePage = async (req, res) => {
     });
   } catch (error) {
     console.error('Error in getHomePage method', error);
-    res.render('error500');
+    // res.render('error500');
+    next(error);
   }
 };
 
-export const getPost = async (req, res) => {
+export const getPost = async (req, res, next) => {
   try {
     const id = req.params.id;
 
@@ -56,7 +57,8 @@ export const getPost = async (req, res) => {
     res.render('post', { data });
   } catch (error) {
     console.error('Error in getPost method', error);
-    res.render('error500');
+    // res.render('error500');
+    next(error);
   }
 };
 
