@@ -1,0 +1,27 @@
+<h1>Login</h1>
+
+<!-- Display the message if available -->
+<div class="messageClass <%= messageClass %>">
+    <% if (message) { %>
+        <p><%= message %></p>
+        <span class="close" onclick="this.parentElement.style.display='none'">&times;</span>
+    <%  } %>
+        
+</div>
+
+
+<form action="/login" method="POST">
+    <label for="username"><b>Username</b></label>
+    <!-- Populate the input field with the previous username value -->
+    <input type="text" name="username" placeholder="Enter Username" <% if (username) { %>
+      value="<%= username %>"
+    <% } %>>
+
+    <label for="password"><b>Password</b></label>
+    <!-- Populate the input field with the previous username value -->
+    <input type="text" name="password" placeholder="Enter Password" <% if (password) { %>
+      value="<%= password %>"
+    <% } %>>
+    <input type="submit" value="Login" class="btn">
+</form>
+
