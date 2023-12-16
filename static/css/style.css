@@ -355,3 +355,33 @@ img {
 .error-container p {
   color: #777;
 }
+
+/* Add CSS styling for the message div */
+.messageClass {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.success {
+  background-color: #4CAF50; /* Green */
+}
+
+.failure {
+  background-color: #f44336; /* Red */
+}
+
+/* Add CSS styling for the close button */
+.close {
+  float: right;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: black;
+}
