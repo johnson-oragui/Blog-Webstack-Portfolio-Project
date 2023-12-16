@@ -64,7 +64,7 @@ export const getPost = async (req, res, next) => {
 
 export const getAboutPage = (req, res) => {
   const locals = {
-    ttitle: 'About Page',
+    title: 'About Page',
     description: 'About Us',
   };
   res.render('about', locals);
