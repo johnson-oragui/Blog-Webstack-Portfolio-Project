@@ -5,6 +5,7 @@ import express from 'express';
 import expressEjsLayouts from 'express-ejs-layouts';
 import mainRouter from './server/routes/main';
 import errorRouter from './server/routes/error';
+import adminRouter from './server/routes/admin';
 import dbConnect from './utils/db';
 // import error classes from custom file
 import { NotFoundError, UnauthorizedError } from './errorClasses';
@@ -31,6 +32,8 @@ app.use(morgan('combined', { stream: accessLogStream }));
 
 // middleware for parsing JSON in request bodies
 app.use(express.json());
+// middleware for decoding URL-encoded form data.
+app.use(express.urlencoded({ extended: false }));
 
 // middle ware
 app.use(express.static('static'));
@@ -53,7 +56,9 @@ const PORT = process.env.PORT || 5000;
 // get methods for Home and about pages
 app.use('/', mainRouter);
 // get methods for error pages
-app.use('/error', errorRouter);
+app.use('/', errorRouter);
+// get methods for admin pages
+app.use('/', adminRouter);
 
 // middlewar foe error handling
 app.use((err, req, res, next) => {
