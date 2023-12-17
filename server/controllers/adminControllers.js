@@ -1,15 +1,6 @@
-import bcrypt from 'bcrypt';
 import Post from '../models/post';
 import User from '../models/user';
-
-async function checkHashedPwd(pwd, hashedPwd) {
-  try {
-    const match = await bcrypt.compare(pwd, hashedPwd);
-    return match;
-  } catch (error) {
-    throw new Error(`Error comparing passwords: ${error.message}`);
-  }
-}
+import { checkHashedPwd } from '../utils/bcryptUtils';
 
 const adminLayout = '../views/layouts/admin';
 
@@ -27,7 +18,7 @@ export const getLoginPage = async (req, res, next) => {
       layout: adminLayout,
       message,
       messageClass: 'success',
-      username: null,
+      username: req.params.username || null,
       password: null,
     });
   } catch (error) {
@@ -44,67 +35,62 @@ export const postLoginPage = async (req, res, next) => {
       description: 'Admin DashBoard',
     };
 
-    let message = '';
-
     if (req.method === 'POST') {
       const { username, password } = req.body;
 
       if (!username || username.trim() === '') {
-        message = 'Username is missing';
         console.log('username missing');
         // Pass the entered values as locals to the login page
-        res.render('admin/login', {
+        return res.render('admin/login', {
           locals,
           layout: adminLayout,
           username,
           password,
-          message,
+          message: 'Username is missing',
           messageClass: 'failure',
         });
       }
       if (!password || password.trim() === '') {
-        message = 'Password is missing';
         console.log('password missing');
         // Pass the entered values as locals to the login page
-        res.render('admin/login', {
+        return res.render('admin/login', {
           locals,
           layout: adminLayout,
           username,
           password,
-          message,
+          message: 'Password is missing',
           messageClass: 'failure',
         });
       }
-      const user = User.findOne({ username });
+      const user = await User.findOne({ username });
 
       if (!user) {
-        message = 'User not found';
         console.log('User not found');
         // Pass the entered values as locals to the login page
-        res.render('admin/login', {
+        return res.render('admin/login', {
           locals,
           layout: adminLayout,
           username,
           password,
-          message,
+          message: 'User not found',
           messageClass: 'failure',
         });
       }
-      const pwdMatch = await checkHashedPwd(password, user.password);
+
+      const pwdMatch = await checkHashedPwd(password, user.hashedPassword);
       if (!pwdMatch) {
-        message = 'Incorrect Password';
         console.log('incorrect password');
         // Pass the entered values as locals to the login page
-        res.render('admin/login', {
+        return res.render('admin/login', {
           locals,
           layout: adminLayout,
           username,
           password,
-          message,
+          message: 'Incorrect Password',
           messageClass: 'failure',
         });
       }
-      res.redirect('dashboard', { locals, layout: adminLayout }); // index.ejs inside admin folder
+      return res.render('dashboard', { layout: adminLayout }); // index.ejs inside admin folder
     }
   } catch (error) {
     console.error('error in getAdminPage method', error.message);
@@ -119,21 +105,20 @@ export const getRegPage = async (req, res, next) => {
       title: 'Reistration Page',
       description: 'Register with us',
     };
-    res.render('/register', { locals, adminLayout });
-  } catch (error) {
-    console.error('Error in getRegPage', error.message);
-    next(error);
-  }
-};
-
-// Admin register page
-export const postRegPage = async (req, res, next) => {
-  try {
-    const locals = {
-      title: 'Reistration Page',
-      description: 'Register with us',
-    };
-    res.redirect('/login', { locals, adminLayout });
+    if (req.method === 'GET') {
+      res.render('admin/register', {
+        locals,
+        adminLayout,
+        message: 'Fill in your details to register',
+        messageClass: 'success',
+        firstname: null,
+        lastname: null,
+        username: null,
+        email: null,
+        password: null,
+        password2: null,
+      });
+    }
   } catch (error) {
     console.error('Error in getRegPage', error.message);
     next(error);
