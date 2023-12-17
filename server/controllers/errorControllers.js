@@ -4,7 +4,7 @@ export const getNotFound = (req, res) => {
     title: '404 Not Found',
     description: 'The requested page could not be found.',
   };
-  res.render('error404', { locals });
+  return res.render('error404', { locals });
 };
 
 export const getServerError = (req, res) => {
@@ -12,7 +12,15 @@ export const getServerError = (req, res) => {
     title: '500 Internal Server Error',
     description: 'There was an internal server error',
   };
-  res.render('error500', { locals });
+  return res.render('error500', { locals });
+};
+
+export const getBadRequest = (req, res) => {
+  const locals = {
+    title: '400 Bad Request',
+    description: 'Invalid JSON',
+  };
+  return res.render('error400', { locals });
 };
 
 export const getUnauthorized = (req, res) => {
@@ -20,5 +28,5 @@ export const getUnauthorized = (req, res) => {
     title: '401 Unauthorized',
     description: 'You are not authorized to access this resource.',
   };
-  res.render('error401', { locals });
+  return res.render('error401', { locals });
 };
