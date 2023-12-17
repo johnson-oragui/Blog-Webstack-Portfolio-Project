@@ -3,8 +3,8 @@ import {
   getLoginPage,
   getRegPage,
   postLoginPage,
-  postRegPage,
 } from '../controllers/adminControllers';
+import postRegPage from '../controllers/registrationController';
 
 const router = express.Router();
 
