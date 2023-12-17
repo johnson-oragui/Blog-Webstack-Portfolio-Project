@@ -183,8 +183,11 @@ COPY
 COPY
 const post = Post.find();
 
-Without any arguments, the code above will return all post documents available in the database. To select just one item or a specific group of items, you would have to pass some arguments to the find method.
-For example, if I want it to get only documents with author to be Ehoneah Obed, the code will be like this:
+Without any arguments, the code above will return all post documents available in the
+database. To select just one item or a specific group of items, you would have to pass
+some arguments to the find method.
+For example, if I want it to get only documents with author to be Ehoneah Obed,
+the code will be like this:
 COPY
 COPY
 const post =Post.find({ author: 'Ehoneah Obed' }
@@ -237,8 +240,11 @@ const user = User.findOne({ _id: 123 });
 console.log(user.fullName());
 
 Model Statics in Mongoose
-Model statics are static methods that are available on the model itself. For example, you might define a findByFullName static method on a User model that finds a user by their full name.
-To define a model static in Mongoose, you can use the .static() function on the schema. Here is an example of how you might define a findByFullName model static:
+Model statics are static methods that are available on the model itself. For example, you
+might define a findByFullName static method on a User model that finds a user by their
+full name.
+To define a model static in Mongoose, you can use the .static() function on the schema.
+Here is an example of how you might define a findByFullName model static:
 COPY
 COPY
 const userSchema = new mongoose.Schema({
