@@ -11,22 +11,34 @@
 <form action="/register" method="POST">
     
     <label for="firstname">First Name</label>
-    <input type="text" name="firstname" placeholder="Enter first Name">
+    <input type="text" name="firstname" placeholder="Enter first Name" <% if (firstname) { %>
+        value="<%= firstname %>"
+    <% } %>>
 
     <label for="lastname">Last Name</label>
-    <input type="text" name="lastname" placeholder="Enter Last Name">
+    <input type="text" name="lastname" placeholder="Enter Last Name" <% if (lastname) { %>
+        value="<%= lastname %>"
+    <% } %>>
 
     <label for="username">Username</label>
-    <input type="text" name="username" placeholder="Enter User Name">
+    <input type="text" name="username" placeholder="Enter User Name" <% if (username) { %>
+        value="<%= username %>"
+    <% } %>>
 
     <label for="email">Email</label>
-    <input type="text" name="email" placeholder="Enter Email">
+    <input type="text" name="email" placeholder="Enter Email" <% if (email) { %>
+        value="<%= email %>"
+    <% } %>>
 
     <label for="password">Password</label>
-    <input type="text" name="password" placeholder="Enter Password">
+    <input type="text" name="password" placeholder="Enter Password" <% if (password) { %>
+        value="<%= password %>"
+    <% } %>>
 
     <label for="password2">Confirm Password</label>
-    <input type="text" name="password2" placeholder="Confirm Password">
+    <input type="text" name="password2" placeholder="Confirm Password" <% if (password2) { %>
+        value="<%= password2 %>"
+    <% } %>>
 
     <button type="submit" class="btn">Register</button>
 </form>
