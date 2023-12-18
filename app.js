@@ -12,7 +12,6 @@ import adminRouter from './server/routes/admin';
 import dbConnect from './utils/db';
 // import error middlewar
 import errorMiddleware from './server/errorMiddleware';
-import session from 'express-session';
 
 const rotatingFileStream = require('rotating-file-stream');
 
