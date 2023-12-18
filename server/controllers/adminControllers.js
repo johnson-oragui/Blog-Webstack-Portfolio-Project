@@ -13,7 +13,7 @@ export const getLoginPage = async (req, res, next) => {
     };
     const message = 'Please enter your data to login';
 
-    res.render('admin/login', {
+    return res.render('admin/login', {
       locals,
       layout: adminLayout,
       message,
@@ -65,28 +65,28 @@ export const postLoginPage = async (req, res, next) => {
       const user = await User.findOne({ username });
 
       if (!user) {
-        console.log('User not found');
+        console.log('Incorrect Credentials');
         // Pass the entered values as locals to the login page
         return res.render('admin/login', {
           locals,
           layout: adminLayout,
           username,
           password,
-          message: 'User not found',
+          message: 'Incprrect Credentials',
           messageClass: 'failure',
         });
       }
 
       const pwdMatch = await checkHashedPwd(password, user.hashedPassword);
       if (!pwdMatch) {
-        console.log('incorrect password');
+        console.log('incorrect Credentials');
         // Pass the entered values as locals to the login page
         return res.render('admin/login', {
           locals,
           layout: adminLayout,
           username,
           password,
-          message: 'Incorrect Password',
+          message: 'Incorrect Credentials',
           messageClass: 'failure',
         });
       }
@@ -106,7 +106,7 @@ export const getRegPage = async (req, res, next) => {
       description: 'Register with us',
     };
     if (req.method === 'GET') {
-      res.render('admin/register', {
+      return res.render('admin/register', {
         locals,
         adminLayout,
         message: 'Fill in your details to register',
