@@ -1,6 +1,9 @@
 import morgan from 'morgan';
 import fs from 'fs';
 import path from 'path';
+import cookieParser from 'cookie-parser';
+import MongoStore from 'connect-mongo';
+import session from 'express-session';
 import express from 'express';
 import expressEjsLayouts from 'express-ejs-layouts';
 import mainRouter from './server/routes/main';
@@ -9,6 +12,7 @@ import adminRouter from './server/routes/admin';
 import dbConnect from './utils/db';
 // import error middlewar
 import errorMiddleware from './server/errorMiddleware';
+import session from 'express-session';
 
 const rotatingFileStream = require('rotating-file-stream');
 
@@ -34,6 +38,17 @@ app.use(morgan('combined', { stream: accessLogStream }));
 app.use(express.json());
 // middleware for decoding URL-encoded form data.
 app.use(express.urlencoded({ extended: false }));
+// middleware for CookieParser
+app.use(cookieParser());
+// middleware for sessions
+app.use(session({
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: MongoStore({
+    mongoUrl: process.env.MONGODB_URI,
+  }),
+}));
 
 // middle ware
 app.use(express.static('static'));
