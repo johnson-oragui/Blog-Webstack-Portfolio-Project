@@ -38,16 +38,20 @@ app.use(express.json());
 // middleware for decoding URL-encoded form data.
 app.use(express.urlencoded({ extended: false }));
 // middleware for CookieParser
+// Parses cookies attached to the client's request and makes them available
+///   in the req.cookies object.
 app.use(cookieParser());
-// middleware for sessions
+// middleware for session support for Express application.
 app.use(session({
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: true,
-  store: MongoStore({
-    mongoUrl: process.env.MONGODB_URI,
+  secret: process.env.SECRET, // used to sign the session ID cookie.
+  resave: false, // Forces the session to be saved back to the session store
+  saveUninitialized: true, // Forces a session that is "uninitialized" to be saved to the store
+  store: new MongoStore({
+    mongoUrl: process.env.MONGODB_URI, // uses MongoStore to store session data in MongoDB.
   }),
 }));
+// The session middleware adds a req.session object to each request, allowing the storage
+//  and retrieval of data specific to a user's session.
 
 // middle ware
 app.use(express.static('static'));
