@@ -1,3 +1,4 @@
+/* eslint-disable no-else-return */
 import { NotFoundError, UnauthorizedError } from './errorClasses';
 
 const errorMiddleware = ((err, req, res, next) => {
@@ -9,18 +10,14 @@ const errorMiddleware = ((err, req, res, next) => {
     return res.render('error400');
   } else if (err instanceof SyntaxError && err.status === 404 && 'body' in err) {
     // Handle JSON parse error
-    const userToken = res.cookie.token;
-    return res.render('error404', { userToken });
+    return res.redirect('/notfound');
   } else if (err instanceof NotFoundError || err.status === 404) {
-    const userToken = res.cookie.token;
-    return res.render('error404', { userToken });
+    return res.redirect('/notfound');
   } else if (err instanceof UnauthorizedError || err.status === 401) {
-    const userToken = res.cookie.token;
-    return res.render('error401', { userToken });
+    return res.redirect('/unauthorized');
   } else {
     // Default error handling
-    const userToken = res.cookie.token;
-    return res.render('error500', { userToken });
+    return res.redirect('/serverError');
   }
   // Call next without any conditions to ensure execution of subsequent middleware
   next();
