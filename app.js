@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
-import session from 'express-session';
+import session, { Cookie } from 'express-session';
 import express from 'express';
 import expressEjsLayouts from 'express-ejs-layouts';
 import mainRouter from './server/routes/main';
