@@ -1,0 +1,269 @@
+to anyone reading this, this gave me a lot of issues, i had to do this to help me remember my way through the hilly path.
+
+
+The purpose of the refresh token is to obtain a new access token when the current access token expires. The refresh token itself is typically long-lived compared to the access token and is used to obtain a new access token without requiring the user to re-enter their credentials.
+
+import these into your main app.js
+
+import cookieParser from 'cookie-parser';
+import MongoStore from 'connect-mongo';
+import session, { Cookie } from 'express-session';
+import express from 'express';
+
+set these midddlewares
+
+// middleware for parsing JSON in request bodies
+app.use(express.json());
+// middleware for decoding URL-encoded form data.
+app.use(express.urlencoded({ extended: false }));
+
+// middleware for CookieParser
+// Parses cookies attached to the client's request and makes them available
+///   in the req.cookies object.
+app.use(cookieParser());
+// middleware for session support for Express application.
+app.use(session({
+  secret: process.env.SECRET, // used to sign the session ID cookie.
+  resave: false, // Forces the session to be saved back to the session store
+  saveUninitialized: true, // Forces a session that is "uninitialized" to be saved to the store
+  store: new MongoStore({
+    mongoUrl: process.env.MONGODB_URI, // uses MongoStore to store session data in MongoDB.
+  }),
+}));
+// The session middleware adds a req.session object to each request, allowing the storage
+//  and retrieval of data specific to a user's session.
+
+create a midddleware for jsonwebtokens
+
+import jwt from 'jsonwebtoken';
+import { generateRefreshToken, verifyRefreshToken } from './generateFreshToken';
+import { generateAcessToken, verifyAccessToken } from './generateVerifyAccessToken';
+
+export default function authenticationMiddleware(req, res, next) {
+  const token = req.cookies.token;
+  console.log('token from AuthMiddleware: ', token);
+
+  const refreshToken = req.cookies.refreshToken;
+  console.log('refreshToken from AuthMiddleware: ', refreshToken);
+  console.log('req.cookies from AuthMiddleware: ', req.cookies);
+
+  if (!token) {
+    console.log('token not present');
+    // Redirect to login page
+    return res.redirect('/login');
+  }
+  if ((!token && !refreshToken)) {
+    console.log('refreshToken not present');
+    // Redirect to login page
+    return res.redirect('/login');
+  }
+
+  try {
+    if (token) {
+      const decodedToken = verifyAccessToken(token);
+      if (!decodedToken.success) {
+        return res.redirect('/refresh');
+      }
+      console.log('from authenticationMiddleware decodedToken : ', decodedToken);
+      req.userId = decodedToken.data.id;
+      console.log('from authenticationMiddleware req.userId: ', req.userId);
+      next();
+    } else if (refreshToken) {
+      const refreshVerification = verifyRefreshToken(refreshToken);
+
+      if (refreshVerification.success) {
+        const freshAccessToken = generateRefreshToken(refreshVerification.data);
+        const newAccessToken = generateAcessToken(refreshVerification.data);
+
+        req.userId = refreshVerification.data.id;
+        console.log('from refreshVerification.data.id req.userId', req.userId);
+
+        res.cookie('token', freshAccessToken, { httpOnly: true });
+        res.cookie('token', newAccessToken, { httpOnly: true });
+
+        next();
+      } else {
+        // Redirect to login page or handle unauthorized access
+        return res.redirect('/login');
+      }
+    }
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      console.log('token expired in authenticationMiddleware: ', JSON.stringify(error.message));
+      console.log('redirecting to refreshToken in authenticationMiddleware: ');
+      return res.redirect('/refresh');
+    }
+    console.error('Error in authenticationMiddleware: ', JSON.stringify(error.message));
+    // next(error);
+    // Return to login page
+    return res.redirect('/login');
+  }
+}
+
+create a generateAcessToken and a verifyAccessToken functions in a file or seperately.
+
+import jwt from 'jsonwebtoken';
+
+// Generate a new refresh token
+export function generateRefreshToken(user) {
+  const payload = {
+    id: user._id,
+    username: user.username,
+  };
+
+  const options = { expiresIn: '1d' };
+
+  const freshToken = jwt.sign(payload, process.env.FRESH_TOKEN_SECRET, options);
+  console.log('freshToken from generateRefreshToken', freshToken);
+  return freshToken;
+}
+
+// Verify a refresh token
+export function verifyRefreshToken(token) {
+  try {
+    const decoded = jwt.verify(token, process.env.FRESH_TOKEN_SECRET);
+    console.log('decoded from verifyRefreshToken', decoded);
+    return { success: true, data: decoded };
+  } catch (error) {
+    console.error('error in verfiRefreshToken', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+
+then create a generateRefreshToken and a verfiRefreshToken functions in a file or in different files.
+
+import jwt from 'jsonwebtoken';
+
+// Generate a new refresh token
+export function generateRefreshToken(user) {
+  const payload = {
+    id: user._id,
+    username: user.username,
+  };
+
+  const options = { expiresIn: '1d' };
+
+  const freshToken = jwt.sign(payload, process.env.FRESH_TOKEN_SECRET, options);
+  console.log('freshToken from generateRefreshToken', freshToken);
+  return freshToken;
+}
+
+// Verify a refresh token
+export function verifyRefreshToken(token) {
+  try {
+    const decoded = jwt.verify(token, process.env.FRESH_TOKEN_SECRET);
+    console.log('decoded from verifyRefreshToken', decoded);
+    return { success: true, data: decoded };
+  } catch (error) {
+    console.error('error in verfiRefreshToken', error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+create a route that will handle token refresh when the token expires.
+
+import { generateRefreshToken, verifyRefreshToken } from '../routes/authMiddleware/generateFreshToken';
+import { generateAcessToken, verifyAccessToken } from '../routes/authMiddleware/generateVerifyAccessToken';
+
+export default async function refreshToken(req, res, next) {
+  try {
+    console.log('now in refreshToken route');
+    const token = req.cookies.token;
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!token || !refreshToken) {
+      console.log('Tokens missing');
+      return res.redirect('/login');
+    }
+
+    const verifiedAccessToken = verifyAccessToken(token);
+    console.log('Verified access token: ', verifiedAccessToken);
+
+    // If the access token is expired, try using the refresh token
+    if (verifiedAccessToken.error === 'jwt expired') {
+      const refreshVerification = verifyRefreshToken(refreshToken);
+      console.log('Refresh token verification: ', refreshVerification);
+
+      if (!refreshVerification.success) {
+        console.log('Refresh token verification failed');
+        return res.redirect('/login');
+      }
+
+      // Generate new tokens using refresh token data
+      const newAccessToken = generateAcessToken({
+        id: refreshVerification.data.id,
+        username: refreshVerification.data.username,
+      });
+      const newRefreshToken = generateRefreshToken({
+        id: refreshVerification.data.id,
+        username: refreshVerification.data.username,
+      });
+
+      console.log('New access token: ', newAccessToken);
+      console.log('New refresh token: ', newRefreshToken);
+
+      res.cookie('token', newAccessToken, { httpOnly: true });
+      res.cookie('refreshToken', newRefreshToken, { httpOnly: true });
+
+      return res.redirect('/dashboard');
+    }
+  } catch (error) {
+    console.error('Error in refreshToken method', error.message);
+    return res.redirect('/login');
+  }
+}
+
+create a refreshtokenrouter
+
+import express from 'express';
+import refreshToken from '../controllers/refreshTokenController';
+
+const refreshTokenRouter = express.Router();
+
+refreshTokenRouter.get('/refresh', refreshToken);
+
+export default refreshTokenRouter;
+
+protect the admin pages with the authmiddleware and add the refreshtoken router to the file
+
+
+import express from 'express';
+import {
+  getLoginPage,
+  getRegPage,
+  postLoginPage,
+  getDashboard,
+  getNotes,
+  logout,
+} from '../controllers/adminControllers';
+import postRegPage from '../controllers/registrationController';
+import authenticationMiddleware from './authMiddleware/authMiddleware';
+import refreshTokenRouter from './refreshTokenRouter';
+
+const router = express.Router();
+
+router.get('/login', getLoginPage);
+router.get('/register', getRegPage);
+router.get('/logout', logout);
+
+router.get('/dashboard', authenticationMiddleware, getDashboard);
+router.get('/notes', authenticationMiddleware, getNotes);
+
+router.post('/register', postRegPage);
+router.post('/login', postLoginPage);
+
+router.use(refreshTokenRouter);
+
+export default router;
+
+
+then import and use the router in the main app.js
+
+
+// get methods for Home and about pages
+app.use('/', mainRouter);
+// get methods for error pages
+app.use('/', errorRouter);
+// get methods for admin pages
+app.use('/', adminRouter);
