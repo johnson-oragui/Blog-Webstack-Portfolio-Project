@@ -1,14 +1,25 @@
 <header class="header">
-    <a href="/" class="header_logo">BlogPost</a>
+    <% if (!userToken) { %>
+     <a href="/" class="header_logo">Blog Post</a>
+    <% } else { %>
+        <a href="/dashboard" class="header_logo">Admin Panel</a>
+    <% } %>
+    
 
     <nav class="header_nav">
         <ul>
             <li>
                 <a href="/">Home</a>
             </li>
-            <li>
-                <a href="/login">Login</a>
-            </li>
+            <% if (userToken) { %>
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+            <% } else { %>
+                <li>
+                    <a href="/login">Login</a>
+                </li>
+            <% } %>
             <li>
                 <a href="/about">About</a>
             </li>
