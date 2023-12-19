@@ -9,14 +9,18 @@ const errorMiddleware = ((err, req, res, next) => {
     return res.render('error400');
   } else if (err instanceof SyntaxError && err.status === 404 && 'body' in err) {
     // Handle JSON parse error
-    return res.redirect('/notfound');
+    const userToken = res.cookie.token;
+    return res.render('error404', { userToken });
   } else if (err instanceof NotFoundError || err.status === 404) {
-    return res.redirect('/notfound');
+    const userToken = res.cookie.token;
+    return res.render('error404', { userToken });
   } else if (err instanceof UnauthorizedError || err.status === 401) {
-    return res.redirect('/unauthorized');
+    const userToken = res.cookie.token;
+    return res.render('error401', { userToken });
   } else {
     // Default error handling
-    return res.redirect('/serverError');
+    const userToken = res.cookie.token;
+    return res.render('error500', { userToken });
   }
   // Call next without any conditions to ensure execution of subsequent middleware
   next();
