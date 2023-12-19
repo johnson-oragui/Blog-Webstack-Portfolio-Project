@@ -4,7 +4,8 @@ export const getNotFound = (req, res) => {
     title: '404 Not Found',
     description: 'The requested page could not be found.',
   };
-  return res.render('error404', { locals });
+  const userToken = res.cookie.token;
+  return res.render('error404', { locals, userToken });
 };
 
 export const getServerError = (req, res) => {
@@ -12,7 +13,8 @@ export const getServerError = (req, res) => {
     title: '500 Internal Server Error',
     description: 'There was an internal server error',
   };
-  return res.render('error500', { locals });
+  const userToken = res.cookie.token;
+  return res.render('error500', { locals, userToken });
 };
 
 export const getBadRequest = (req, res) => {
@@ -20,7 +22,8 @@ export const getBadRequest = (req, res) => {
     title: '400 Bad Request',
     description: 'Invalid JSON',
   };
-  return res.render('error400', { locals });
+  const userToken = res.cookie.token;
+  return res.render('error400', { locals, userToken });
 };
 
 export const getUnauthorized = (req, res) => {
