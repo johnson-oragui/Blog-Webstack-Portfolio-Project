@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { hashedPwd } from '../utils/bcryptUtils';
 import insertUserData from './userController';
 import User from '../models/user';
@@ -11,6 +12,7 @@ export default async function postRegPage(req, res, next) {
       title: 'Reistration Page',
       description: 'Register with us',
     };
+    const UserToken = req.cookies.token || null;
 
     if (req.method === 'POST') {
       const {
@@ -34,6 +36,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
 
@@ -49,6 +52,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
 
@@ -64,6 +68,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
 
@@ -79,6 +84,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
 
@@ -94,6 +100,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
 
@@ -109,6 +116,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
       const passwordMatch = password === password2;
@@ -125,19 +133,12 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
       const hashedPassword = await hashedPwd(password);
       const hashedPassword2 = await hashedPwd(password2);
 
-      const userData = {
-        firstname,
-        lastname,
-        username,
-        email,
-        hashedPassword,
-        hashedPassword2,
-      };
       const usernameExists = await User.findOne({ username });
       if (usernameExists) {
         console.error('user name already exists');
@@ -151,6 +152,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
       const emailExists = await User.findOne({ email });
@@ -166,8 +168,18 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
+
+      const userData = {
+        firstname,
+        lastname,
+        username,
+        email,
+        hashedPassword,
+        hashedPassword2,
+      };
       const user = await insertUserData(userData);
 
       if (!user) {
@@ -182,6 +194,7 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
+          UserToken,
         });
       }
 
@@ -192,6 +205,7 @@ export default async function postRegPage(req, res, next) {
         password,
         message: `${username} Succesfully registered!`,
         messageClass: 'success',
+        UserToken,
       });
     }
   } catch (error) {
