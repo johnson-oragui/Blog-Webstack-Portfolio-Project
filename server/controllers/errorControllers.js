@@ -31,5 +31,6 @@ export const getUnauthorized = (req, res) => {
     title: '401 Unauthorized',
     description: 'You are not authorized to access this resource.',
   };
-  return res.render('error401', { locals });
+  const userToken = res.cookie.token;
+  return res.render('error401', { locals, userToken });
 };
