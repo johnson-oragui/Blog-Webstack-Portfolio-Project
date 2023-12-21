@@ -1,0 +1,40 @@
+<a href="/dashboard">&larr; Back</a>
+<div class="admin-title">
+    <h2>
+        Add New Post
+    </h2>
+</div>
+<!-- Display the message if available -->
+<div class="messageClass <%= messageClass %>">
+    <% if (message) { %>
+        <p><%= message %></p>
+        <span class="close" onclick="this.parentElement.style.display='none'">&times;</span>
+    <%  } %>
+        
+</div>
+
+<form action="/add-post" method="POST">
+
+    <label for="title"><b>Title</b></label>
+    <input type="text" placeholder="Post Title" name="title" <% if (title) { %>
+     value="<%= title %>"
+     <% } else { %>
+        value=" "
+    <% } %>>
+
+    <label for="category"><b>Category</b></label>
+    <input type="text" placeholder="Category" name="category" <% if (category) { %>
+     value="<%= category %>"
+    <% } else { %>
+        value=" "
+    <% } %>>
+
+    <label for="body"><b>Content</b></label>
+    <textarea name="body" id="body" cols="100" rows="15" placeholder="Body of Content" <% if (body) { %>
+     value="<%= body %>"
+    <% } else { %>
+        value=" "
+    <% } %>></textarea>
+
+    <input type="submit" value="Add" class="btn">
+</form>
