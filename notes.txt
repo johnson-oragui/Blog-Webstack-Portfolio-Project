@@ -32,15 +32,47 @@ app.get('/dashboard', (req, res) => {
 and to use session, we must set a session middleware in our express app.
 
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 
-// middleware for session support for Express application.
-app.use(session({
-  secret: process.env.SECRET, // used to sign the session ID cookie.
-  resave: false, // Forces the session to be saved back to the session store
-  saveUninitialized: true, // Forces a session that is "uninitialized" to be saved to the store
-  store: new MongoStore({
-    mongoUrl: process.env.MONGODB_URI, // uses MongoStore to store session data in MongoDB.
-  }),
-}));
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGODB_URI,
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24, // Session cookie lifespan in milliseconds (1 day in this example)
+      secure: process.env.NODE_ENV === 'production', // Set to true in production if using HTTPS
+      httpOnly: true, // Ensures that the cookie is only accessible by the web server, not client-side scripts
+      sameSite: 'strict', // Protects against cross-site request forgery attacks
+    },
+  })
+);
 // The session middleware adds a req.session object to each request, allowing the storage
 //  and retrieval of data specific to a user's session.
+
+Regarding the sameSite option, it controls when the browser includes the cookie in a cross-site request. The possible values are:
+
+'Strict': Cookies will only be sent in a first-party context (i.e., the site the user is currently visiting).
+'Lax': Cookies are sent in top-level navigations and in first-party contexts, but not in cross-site requests initiated by third-party websites. This is the default value.
+'None': Cookies will be sent in all contexts, including third-party requests.
+Setting sameSite: 'strict' provides a higher level of security by preventing the browser from sending cookies in cross-site requests, which helps protect against certain types of attacks like Cross-Site Request Forgery (CSRF). However, it might affect the behavior of the application, especially if one has cross-site requests that rely on cookies.
+
+
+and to send it over cookies:
+
+// Before redirecting
+res.cookie('myVar', 'someValue');
+res.redirect('/dashboard');
+
+in the dashboard handler
+
+// Route handling "/dashboard"
+app.get('/dashboard', (req, res) => {
+  const myVar = req.cookies.myVar;
+ 
+  res.render('dashboard', { myVar });
+});
+
