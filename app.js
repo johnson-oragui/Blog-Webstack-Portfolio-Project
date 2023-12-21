@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
-import session, { Cookie } from 'express-session';
+import session from 'express-session';
 import express from 'express';
 import expressEjsLayouts from 'express-ejs-layouts';
 import mainRouter from './server/routes/main';
@@ -49,6 +49,11 @@ app.use(session({
   store: new MongoStore({
     mongoUrl: process.env.MONGODB_URI, // uses MongoStore to store session data in MongoDB.
   }),
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Set to true in production if using HTTPS
+    httpOnly: true, // Ensures that the cookie is only accessible by the web server.
+    sameSite: 'strict', // Protects against cross-site request forgery attacks
+  },
 }));
 // The session middleware adds a req.session object to each request, allowing the storage
 //  and retrieval of data specific to a user's session.
