@@ -1,0 +1,46 @@
+When redirecting to another route or same route, and one wishes tto pass a variable along, assuming the variable is called myVar:
+
+const myVar = 'someValue';
+
+the variable can be passed through the query parameters in the URL:
+
+res.redirect('/dashboard?myVar=${myVar}');
+
+and then in the route handling '/dashboard', one can access the value of 'myVar' from the query parameters:
+
+app.get('/dahsboard', (req, res) => {
+  const myVar = req.query.myVar;
+});
+
+however, this approach exposes the variable in the URL, so if the variable is expected to be a sebsitive data, this is not a suitable way to do so.
+
+another way to achieve this is by the use of sessions or cookies.
+
+using sessions:
+
+req.session.myVar = 'someValue';
+res.redirect('/dashboard');
+
+and then in the dahsboard route:
+
+// Route handling "/dashboard"
+app.get('/dashboard', (req, res) => {
+  const myVar = req.session.myVar;
+
+});
+
+and to use session, we must set a session middleware in our express app.
+
+import session from 'express-session';
+
+// middleware for session support for Express application.
+app.use(session({
+  secret: process.env.SECRET, // used to sign the session ID cookie.
+  resave: false, // Forces the session to be saved back to the session store
+  saveUninitialized: true, // Forces a session that is "uninitialized" to be saved to the store
+  store: new MongoStore({
+    mongoUrl: process.env.MONGODB_URI, // uses MongoStore to store session data in MongoDB.
+  }),
+}));
+// The session middleware adds a req.session object to each request, allowing the storage
+//  and retrieval of data specific to a user's session.
