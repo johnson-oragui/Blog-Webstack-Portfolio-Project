@@ -7,7 +7,7 @@ export function generateRefreshToken(user) {
     username: user.username,
   };
 
-  const options = { expiresIn: '1d' };
+  const options = { expiresIn: '7d' };
 
   const freshToken = jwt.sign(payload, process.env.FRESH_TOKEN_SECRET, options);
   console.log('freshToken from generateRefreshToken', freshToken);
