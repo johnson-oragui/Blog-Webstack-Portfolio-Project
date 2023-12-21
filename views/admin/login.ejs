@@ -15,13 +15,17 @@
     <!-- Populate the input field with the previous username value -->
     <input type="text" name="username" placeholder="Enter Username" <% if (username) { %>
       value="<%= username %>"
-    <% } %>>
+    <% } else { %>
+      value="<%= null %>"
+      <% } %>>
 
     <label for="password"><b>Password</b></label>
     <!-- Populate the input field with the previous username value -->
-    <input type="text" name="password" placeholder="Enter Password" <% if (password) { %>
+    <input type="password" name="password" placeholder="Enter Password" <% if (password) { %>
       value="<%= password %>"
-    <% } %>>
+    <% } else { %>
+      value="<%= null %>"
+      <% } %>>
     <input type="submit" value="Login" class="btn">
 </form>
 
