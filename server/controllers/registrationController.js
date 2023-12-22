@@ -16,6 +16,7 @@ export default async function postRegPage(req, res, next) {
     res.locals.title = 'Reistration Page';
     res.locals.description = 'Register with us';
     res.locals.userToken = req.cookies.token;
+    res.locals.layout = adminLayout;
 
     if (req.method === 'POST') {
       const {
@@ -30,7 +31,6 @@ export default async function postRegPage(req, res, next) {
       if (!firstname || firstname.trim() === '') {
         console.error('firstname missing', firstname);
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'First Name is missing',
           messageClass: 'failure',
           firstname,
@@ -45,7 +45,6 @@ export default async function postRegPage(req, res, next) {
       if (!lastname || lastname.trim() === '') {
         console.error('lastname missing', lastname);
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Last Name is missing',
           messageClass: 'failure',
           firstname,
@@ -60,7 +59,6 @@ export default async function postRegPage(req, res, next) {
       if (!username || username.trim() === '') {
         console.error('username missing', username);
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Username is missing',
           messageClass: 'failure',
           firstname,
@@ -75,7 +73,6 @@ export default async function postRegPage(req, res, next) {
       if (!email || email.trim() === '') {
         console.error('email missing', email);
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Email is missing',
           messageClass: 'failure',
           firstname,
@@ -90,7 +87,6 @@ export default async function postRegPage(req, res, next) {
       if (!password || password.trim() === '') {
         console.error('password missing', password);
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Password is missing',
           messageClass: 'failure',
           firstname,
@@ -105,7 +101,6 @@ export default async function postRegPage(req, res, next) {
       if (!password2 || password2.trim() === '') {
         console.error('password2 missing', password2);
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Confirm your Password',
           messageClass: 'failure',
           firstname,
@@ -121,7 +116,6 @@ export default async function postRegPage(req, res, next) {
       if (!passwordMatch) {
         console.error('password1 and password2 are not a match');
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Both Passwords do not match',
           messageClass: 'failure',
           firstname,
@@ -139,7 +133,6 @@ export default async function postRegPage(req, res, next) {
       if (usernameExists) {
         console.error('user name already exists');
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Username already exists',
           messageClass: 'failure',
           firstname,
@@ -154,7 +147,6 @@ export default async function postRegPage(req, res, next) {
       if (emailExists) {
         console.error('Email already exists');
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Email already exists',
           messageClass: 'failure',
           firstname,
@@ -179,7 +171,6 @@ export default async function postRegPage(req, res, next) {
       if (!user) {
         console.log('cound not add user');
         return res.render('admin/register', {
-          layout: adminLayout,
           message: 'Could not register the user',
           messageClass: 'failure',
           firstname,
