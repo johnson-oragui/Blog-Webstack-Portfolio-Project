@@ -1,4 +1,3 @@
-import jwt from 'jsonwebtoken';
 import { hashedPwd } from '../utils/bcryptUtils';
 import insertUserData from './userController';
 import User from '../models/user';
@@ -6,13 +5,17 @@ import User from '../models/user';
 const adminLayout = '../views/layouts/admin';
 
 // Admin register page
+/**
+ * @description Post Register Route
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} next
+ */
 export default async function postRegPage(req, res, next) {
   try {
-    const locals = {
-      title: 'Reistration Page',
-      description: 'Register with us',
-    };
-    const UserToken = req.cookies.token || null;
+    res.locals.title = 'Reistration Page';
+    res.locals.description = 'Register with us';
+    res.locals.userToken = req.cookies.token;
 
     if (req.method === 'POST') {
       const {
@@ -27,7 +30,7 @@ export default async function postRegPage(req, res, next) {
       if (!firstname || firstname.trim() === '') {
         console.error('firstname missing', firstname);
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'First Name is missing',
           messageClass: 'failure',
           firstname,
@@ -36,14 +39,13 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
 
       if (!lastname || lastname.trim() === '') {
         console.error('lastname missing', lastname);
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Last Name is missing',
           messageClass: 'failure',
           firstname,
@@ -52,14 +54,13 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
 
       if (!username || username.trim() === '') {
         console.error('username missing', username);
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Username is missing',
           messageClass: 'failure',
           firstname,
@@ -68,14 +69,13 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
 
       if (!email || email.trim() === '') {
         console.error('email missing', email);
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Email is missing',
           messageClass: 'failure',
           firstname,
@@ -84,14 +84,13 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
 
       if (!password || password.trim() === '') {
         console.error('password missing', password);
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Password is missing',
           messageClass: 'failure',
           firstname,
@@ -100,14 +99,13 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
 
       if (!password2 || password2.trim() === '') {
         console.error('password2 missing', password2);
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Confirm your Password',
           messageClass: 'failure',
           firstname,
@@ -116,7 +114,6 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
       const passwordMatch = password === password2;
@@ -124,7 +121,7 @@ export default async function postRegPage(req, res, next) {
       if (!passwordMatch) {
         console.error('password1 and password2 are not a match');
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Both Passwords do not match',
           messageClass: 'failure',
           firstname,
@@ -133,7 +130,6 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
       const hashedPassword = await hashedPwd(password);
@@ -143,7 +139,7 @@ export default async function postRegPage(req, res, next) {
       if (usernameExists) {
         console.error('user name already exists');
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Username already exists',
           messageClass: 'failure',
           firstname,
@@ -152,14 +148,13 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
       const emailExists = await User.findOne({ email });
       if (emailExists) {
         console.error('Email already exists');
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Email already exists',
           messageClass: 'failure',
           firstname,
@@ -168,7 +163,6 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
 
@@ -185,7 +179,7 @@ export default async function postRegPage(req, res, next) {
       if (!user) {
         console.log('cound not add user');
         return res.render('admin/register', {
-          locals,
+          layout: adminLayout,
           message: 'Could not register the user',
           messageClass: 'failure',
           firstname,
@@ -194,18 +188,16 @@ export default async function postRegPage(req, res, next) {
           email,
           password,
           password2,
-          UserToken,
         });
       }
 
       return res.render('admin/login', {
-        locals,
+        layout: adminLayout,
         adminLayout,
         username,
         password,
         message: `${username} Succesfully registered!`,
         messageClass: 'success',
-        UserToken,
       });
     }
   } catch (error) {
