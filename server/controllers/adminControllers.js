@@ -202,7 +202,7 @@ export const getAddPost = async (req, res, next) => {
       // Define default values for the variables
       res.locals.titleValue = '';
       res.locals.categoryValue = '';
-      res.locals.bodyValue = req.body.body || '';
+      res.locals.bodyValue = '';
 
       console.log('userToken from getAddPost route: ', req.cookies.token);
 
@@ -228,8 +228,10 @@ export const getAddPost = async (req, res, next) => {
 export const postAddPost = async (req, res, next) => {
   try {
     if (req.method === 'POST') {
-      const userToken = req.cookies.token;
-      console.log('userToken from postAddPost route: ', userToken);
+      res.locals.userToken = req.cookies.token;
+      res.locals.title = 'Add post Page';
+      res.locals.description = 'Add post';
+      console.log('userToken from postAddPost route: ', req.cookies.token);
 
       const { title, category, body } = req.body;
 
@@ -237,17 +239,13 @@ export const postAddPost = async (req, res, next) => {
       if (!title || title.trim() === '') {
         console.log('title missing');
         console.log('body: ', body);
-        res.locals.title = 'Add post Page';
-        res.locals.description = 'Add post';
 
         res.locals.titleValue = title;
         res.locals.categoryValue = category;
-        res.locals.bodyValue = body;
         return res.render('admin/add-post', {
-          userToken,
           message: 'Title missing',
           messageClass: 'failure',
-          bodyValue: req.body.body,
+          bodyValue: body,
         });
       }
       console.log('title section,  check for title passed');
@@ -255,14 +253,10 @@ export const postAddPost = async (req, res, next) => {
       console.log('body section,  check for body');
       if (!body || body.trim() === '') {
         console.log('body missing');
-        res.locals.title = 'Add post Page';
-        res.locals.description = 'Add post';
 
         res.locals.titleValue = title;
         res.locals.categoryValue = category;
-        res.locals.bodyValue = body;
         return res.render('admin/add-post', {
-          userToken,
           message: 'Content missing',
           messageClass: 'failure',
           bodyValue: body,
