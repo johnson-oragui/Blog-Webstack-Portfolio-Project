@@ -76,3 +76,83 @@ app.get('/dashboard', (req, res) => {
   res.render('dashboard', { myVar });
 });
 
+the express-session middleware is not limited to using only MongoStore for session storage. 
+
+MemoryStore:
+
+This is the default session store that comes with express-session. It stores session data in memory on the server. However, it is not suitable for production use in scenarios where you have multiple server instances or need to scale your application horizontally.
+Example:
+
+
+import session from 'express-session';
+
+app.use(
+  session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: new session.MemoryStore(),
+  })
+);
+
+
+RedisStore:
+
+Redis is an in-memory data structure store, and RedisStore uses Redis as the backend to store session data. It is a good choice for distributed and scalable applications.
+Example:
+
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+
+const RedisStore = connectRedis(session);
+
+app.use(
+  session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: new RedisStore({ url: 'redis://localhost:6379' }),
+  })
+);
+
+
+MySQLStore:
+
+If you're using MySQL, you can use express-mysql-session or a similar package to store session data in a MySQL database.
+Example:
+
+import session from 'express-session';
+import MySQLStore from 'express-mysql-session';
+
+const MySQLStoreInstance = MySQLStore(session);
+
+app.use(
+  session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: new MySQLStoreInstance({
+      host: 'localhost',
+      user: 'root',
+      password: 'your-mysql-password',
+      database: 'your-database-name',
+    }),
+  })
+);
+
+MAKING DATAS AVAILABLE IN TEMPLATES:
+
+res.locals.userToken = req.cookies.token;
+res.locals.title = 'Registration Page';
+res.locals.description = 'Register with us';
+res.locals.firstname = '';
+res.locals.lastname = '';
+res.locals.email = '';
+res.locals.password = '';
+res.locals.password2 = '';
+
+the above method can be used to make data available to templates or routes in a
+current request-response cycle. meaning it will only be available for a single
+request-response cycle.it won't be automatically available in a subsequent request.
+If you need persistent user information across requests, you would typically use a
+session or another form of authentication mechanism.
