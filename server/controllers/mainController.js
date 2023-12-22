@@ -1,5 +1,4 @@
 import Post from '../models/post';
-import mongoose from 'mongoose';
 
 export const getHomePage = async (req, res, next) => {
   try {
@@ -7,7 +6,6 @@ export const getHomePage = async (req, res, next) => {
       title: 'Home Page',
       description: 'Blog Post with MongoDB and Node.js',
     };
-    const userToken = req.cookies.token;
 
     const perPage = 5;
     const page = req.query.page || 1;
@@ -30,7 +28,7 @@ export const getHomePage = async (req, res, next) => {
       nextPage: hasNextPage ? nextPage : null,
       totalPages,
       prevPage,
-      userToken,
+      userToken: req.cookies.token,
     });
   } catch (error) {
     console.error('Error in getHomePage method', error);
@@ -42,25 +40,22 @@ export const getHomePage = async (req, res, next) => {
 export const getPost = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const userToken = req.cookies.token;
+    res.locals.userToken = req.cookies.token;
 
     if (!id) {
       console.error('Id not found', id);
-      res.render('error401');
-      return;
+      return res.render('error401');
     }
     const data = await Post.findById({ _id: id });
 
     if (!data) {
       console.error('data not found', data);
-      res.render('error401');
-      return;
+      return res.render('error401');
     }
 
-    res.render('post', { data, userToken });
+    return res.render('post', { data });
   } catch (error) {
     console.error('Error in getPost method', error);
-    // res.render('error500');
     next(error);
   }
 };
@@ -70,8 +65,8 @@ export const getAboutPage = (req, res) => {
     title: 'About Page',
     description: 'About Us',
   };
-  const userToken = req.cookies.token;
-  return res.render('about', { locals, userToken });
+  res.locals.userToken = req.cookies.token;
+  return res.render('about', { locals });
 };
 
 export const getContactPage = (req, res) => {
@@ -79,9 +74,9 @@ export const getContactPage = (req, res) => {
     title: 'Contact Us',
     description: 'Get in touch with us',
   };
-  const userToken = req.cookies.token;
+  res.locals.userToken = req.cookies.token;
 
-  return res.render('contact', { locals, userToken });
+  return res.render('contact', { locals });
 };
 
 // function insertPostData() {
