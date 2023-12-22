@@ -6,29 +6,30 @@ import { generateRefreshToken } from '../routes/authMiddleware/generateFreshToke
 
 const adminLayout = '../views/layouts/admin';
 
-// Admin logging page
+/**
+   * @description Renders the login page
+   * @param {Object} req - the request object
+   * @param {Object} res - the response object
+   * @param {Function} next - the next middleware function
+   */
 export const getLoginPage = async (req, res, next) => {
   try {
-    const locals = {
-      title: 'Admin',
-      description: 'Admin DashBoard',
-    };
-    const message = 'Please enter your data to login';
-    const userToken = req.cookies.token;
-    console.log('userToken from getLoginPage:', userToken);
-    if (userToken) {
-      console.log('already logged in');
-      return res.redirect('/dashboard');
-    }
+    res.locals.title = 'Admin';
+    res.locals.description = 'Admin DashBoard';
+    res.locals.userToken = req.cookies.token;
+
+    console.log('userToken from getLoginPage:', req.cookies.token);
+    // if (userToken) {
+    //   console.log('already logged in');
+    //   return res.redirect('/dashboard');
+    // }
 
     return res.render('admin/login', {
-      locals,
       layout: adminLayout,
-      message,
+      message: 'Please enter your data to login',
       messageClass: 'success',
-      username: null,
-      password: null,
-      userToken,
+      username: '',
+      password: '',
     });
   } catch (error) {
     console.error('error in getLoginPage method', error.message);
@@ -36,7 +37,12 @@ export const getLoginPage = async (req, res, next) => {
   }
 };
 
-// Handle login form submission
+/**
+ * @description handles the login form submission
+ * @param {Object} req - the request object
+ * @param {Object} res - the response object
+ * @param {Function} next - the next middleware function
+ */
 export const postLoginPage = async (req, res, next) => {
   try {
     const locals = {
@@ -124,28 +130,28 @@ export const postLoginPage = async (req, res, next) => {
   }
 };
 
-// Admin register page
+/**
+ * @description Renders the register page
+ * @param {Object} req - the request object
+ * @param {Object} res - the response object
+ * @param {Function} next - the next middleware function
+ */
 export const getRegPage = async (req, res, next) => {
   try {
-    const locals = {
-      title: 'Reistration Page',
-      description: 'Register with us',
-    };
-    const userToken = req.cookies.token || null;
     if (req.method === 'GET') {
-      return res.render('admin/register', {
-        locals,
-        adminLayout,
-        message: 'Fill in your details to register',
-        messageClass: 'success',
-        firstname: null,
-        lastname: null,
-        username: null,
-        email: null,
-        password: null,
-        password2: null,
-        userToken,
-      });
+      res.locals.title = 'Reistration Page';
+      res.locals.description = 'Register with us';
+      res.locals.messageClass = 'success';
+      res.locals.message = 'Fill in your details to register';
+      res.locals.adminLayout = adminLayout;
+      res.locals.userToken = req.cookies.token;
+      res.locals.firstname = '';
+      res.locals.lastname = '';
+      res.locals.username = '';
+      res.locals.email = '';
+      res.locals.password = '';
+      res.locals.password2 = '';
+      return res.render('admin/register');
     }
   } catch (error) {
     console.error('Error in getRegPage', error.message);
@@ -153,6 +159,12 @@ export const getRegPage = async (req, res, next) => {
   }
 };
 
+/**
+ * @description Renders the dashboard page
+ * @param {Object} req - the request object
+ * @param {Object} res - the response object
+ * @param {Function} next - the next middleware function
+ */
 export const getDashboard = async (req, res, next) => {
   try {
     const locals = {
@@ -176,25 +188,29 @@ export const getDashboard = async (req, res, next) => {
   }
 };
 
-// get add post controller
+/**
+ * @description Renders the add post page
+ * @param {Object} req - the request object
+ * @param {Object} res - the response object
+ * @param {Function} next - the next middleware function
+ */
 export const getAddPost = async (req, res, next) => {
   try {
     if (req.method === 'GET') {
-      const locals = {
-        title: 'Add post Page',
-        description: 'Add post',
-      };
+      res.locals.title = 'Add post Page';
+      res.locals.description = 'Add post';
+      // Define default values for the variables
+      res.locals.titleValue = '';
+      res.locals.categoryValue = '';
+      res.locals.bodyValue = req.body.body || '';
+
       console.log('userToken from getAddPost route: ', req.cookies.token);
 
       return res.render('admin/add-post', {
-        locals,
         userToken: req.cookies.token,
         layout: adminLayout,
         message: 'Fill in all to create a post, category is optional',
         messageClass: 'success',
-        title: null,
-        category: null,
-        body: null,
       });
     }
   } catch (error) {
@@ -203,14 +219,15 @@ export const getAddPost = async (req, res, next) => {
   }
 };
 
-// post add post controller
+/**
+ * @description Handles the add post form submission
+ * @param {Object} req - the request object
+ * @param {Object} res - the response object
+ * @param {Function} next - the next middleware function
+ */
 export const postAddPost = async (req, res, next) => {
   try {
     if (req.method === 'POST') {
-      const locals = {
-        title: 'Add post Page',
-        description: 'Add post',
-      };
       const userToken = req.cookies.token;
       console.log('userToken from postAddPost route: ', userToken);
 
@@ -219,14 +236,18 @@ export const postAddPost = async (req, res, next) => {
       console.log('title section,  check for title');
       if (!title || title.trim() === '') {
         console.log('title missing');
+        console.log('body: ', body);
+        res.locals.title = 'Add post Page';
+        res.locals.description = 'Add post';
+
+        res.locals.titleValue = title;
+        res.locals.categoryValue = category;
+        res.locals.bodyValue = body;
         return res.render('admin/add-post', {
-          locals,
           userToken,
-          title,
-          category,
-          body,
           message: 'Title missing',
           messageClass: 'failure',
+          bodyValue: req.body.body,
         });
       }
       console.log('title section,  check for title passed');
@@ -234,14 +255,17 @@ export const postAddPost = async (req, res, next) => {
       console.log('body section,  check for body');
       if (!body || body.trim() === '') {
         console.log('body missing');
+        res.locals.title = 'Add post Page';
+        res.locals.description = 'Add post';
+
+        res.locals.titleValue = title;
+        res.locals.categoryValue = category;
+        res.locals.bodyValue = body;
         return res.render('admin/add-post', {
-          locals,
           userToken,
-          title,
-          category,
-          body,
           message: 'Content missing',
           messageClass: 'failure',
+          bodyValue: body,
         });
       }
       console.log('body section,  check for body passed');
