@@ -16,25 +16,13 @@
 <form action="/add-post" method="POST">
 
     <label for="title"><b>Title</b></label>
-    <input type="text" placeholder="Post Title" name="title" <% if (title) { %>
-     value="<%= title %>"
-     <% } else { %>
-        value=" "
-    <% } %>>
+    <input type="text" placeholder="Post Title" name="title" value="<%= titleValue ?? '' %>">
 
     <label for="category"><b>Category</b></label>
-    <input type="text" placeholder="Category" name="category" <% if (category) { %>
-     value="<%= category %>"
-    <% } else { %>
-        value=" "
-    <% } %>>
+    <input type="text" placeholder="Category" name="category" value="<%= categoryValue ?? '' %>">
 
     <label for="body"><b>Content</b></label>
-    <textarea name="body" id="body" cols="100" rows="15" placeholder="Body of Content" <% if (body) { %>
-     value="<%= body %>"
-    <% } else { %>
-        value=" "
-    <% } %>></textarea>
+    <textarea name="body" cols="100" rows="15" placeholder="Body of Content" ><%= bodyValue ?? '' %></textarea>
 
     <input type="submit" value="Add" class="btn">
 </form>
