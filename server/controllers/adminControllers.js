@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongoose';
 import Post from '../models/post';
 import User from '../models/user';
 import { checkHashedPwd } from '../utils/bcryptUtils';
@@ -285,12 +286,72 @@ export const postAddPost = async (req, res, next) => {
 
 // get edit post controller
 export const getEditPost = async (req, res, next) => {
+  try {
+    if (req.method === 'GET') {
+      res.locals.title = 'Edit Post';
+      res.locals.description = 'Edit Post ';
+      res.locals.layout = adminLayout;
+      res.locals.userToken = req.cookies.token;
+      res.locals.messageClass = 'success';
+      res.locals.message = 'Edit Your Post to Update';
+      const postId = req.params.id;
+      console.log('postId from getEditPost: ', postId);
 
+      try {
+        const post = await Post.findById(postId);
+        if (!post) {
+          console.log('Could not find post');
+          return res.redirect('/dashboard');
+        }
+        console.log('post found: ', post);
+        res.locals.titleValue = post.title;
+        res.locals.categoryValue = post.category;
+        res.locals.bodyValue = post.body;
+        res.locals.post = post;
+        return res.render('admin/edit-post');
+      } catch (error) {
+        console.error('error fetching posts', error.message);
+        res.locals.messageClass = 'failure';
+        res.locals.message = 'Error fetching posts';
+        return res.redirect('/dashboard');
+      }
+    }
+  } catch (error) {
+    console.error('Error in getEditPost method', error.message);
+    next(error);
+  }
 };
 
 // post edit post controller
-export const postAditPost = async (req, res, next) => {
+export const postEditPost = async (req, res, next) => {
+  try {
+    if (req.method === 'POST') {
+      res.locals.title = 'Edit Post';
+      res.locals.description = 'Edit Post ';
+      res.locals.layout = adminLayout;
+      res.locals.userToken = req.cookies.token;
 
+      const postId = req.params.id;
+      console.log('postId from postEditPost: ', postId);
+
+      const { title, category, body } = req.body;
+
+      try {
+        await Post.findOneAndUpdate(
+          { _id: new ObjectId(postId) },
+          { title, category, body },
+          { new: true },
+        );
+        res.redirect('/dashboard');
+      } catch (error) {
+        console.error('error updating post', error.message);
+        return res.redirect(`/edit-post/${postId}`);
+      }
+    }
+  } catch (error) {
+    console.error('error in postEditPost method', error.message);
+    next(error);
+  }
 };
 
 // get delete post controller
