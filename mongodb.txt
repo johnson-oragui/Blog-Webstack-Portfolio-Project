@@ -171,7 +171,7 @@ COPY
 const post = Post.create(
   {
     title: 'My first Blog post',
-    author: 'Ehoneah Obed',
+    author: 'DOnald Putin',
     category: 'Health'
   });
 
@@ -186,11 +186,11 @@ const post = Post.find();
 Without any arguments, the code above will return all post documents available in the
 database. To select just one item or a specific group of items, you would have to pass
 some arguments to the find method.
-For example, if I want it to get only documents with author to be Ehoneah Obed,
+For example, if I want it to get only documents with author to be DOnald Putin,
 the code will be like this:
 COPY
 COPY
-const post =Post.find({ author: 'Ehoneah Obed' }
+const post =Post.find({ author: 'DOnald Putin' }
 
 Deleting documents through Mongoose Models
 To delete documents from a MongoDB collection using a Mongoose model, you can use the .deleteOne() or .deleteMany() method.
@@ -201,7 +201,7 @@ COPY
 Post.deleteOne({ title: 'My First Blog Post' });
 
 // Delete many documents
-Post.deleteMany({ author: 'Ehoneah Obed' });
+Post.deleteMany({ author: 'DOnald Putin' });
 
 In Mongoose, you can also use the .findOneAndDelete() method to delete a single document from a collection.
 The .findOneAndDelete() method finds the first document that matches the specified query criteria and deletes it, returning the deleted document to you.
