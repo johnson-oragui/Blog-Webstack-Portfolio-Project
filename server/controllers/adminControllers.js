@@ -1,8 +1,8 @@
-import { ObjectId } from 'mongoose';
 import Post from '../models/post';
 import User from '../models/user';
+import ArchivedPost from '../models/archived-post';
 import { checkHashedPwd } from '../utils/bcryptUtils';
-import { generateAcessToken } from '../routes/authMiddleware/generateVerifyAccessToken';
+import { generateAcessToken, verifyAccessToken } from '../routes/authMiddleware/generateVerifyAccessToken';
 import { generateRefreshToken } from '../routes/authMiddleware/generateFreshToken';
 
 const adminLayout = '../views/layouts/admin';
@@ -20,7 +20,8 @@ export const getLoginPage = async (req, res, next) => {
     res.locals.userToken = req.cookies.token;
 
     console.log('userToken from getLoginPage:', req.cookies.token);
-    // if (userToken) {
+    // const { success, data } = await verifyAccessToken(req.cookies.token);
+    // if (success && data.exp) {
     //   console.log('already logged in');
     //   return res.redirect('/dashboard');
     // }
@@ -168,20 +169,20 @@ export const getRegPage = async (req, res, next) => {
  */
 export const getDashboard = async (req, res, next) => {
   try {
-    const locals = {
-      title: 'Dashboard Page',
-      description: 'My Dashboard',
-    };
     const userToken = req.cookies.token;
-    console.log('userToken from geDashboard route: ', userToken);
+    const { data } = verifyAccessToken(userToken);
+    res.locals.data = data;
+    res.locals.title = 'Dashboard';
+    res.locals.description = 'Admin DashBoard';
+    res.locals.message = 'Welcome';
+    res.locals.messageClass = 'success';
 
-    const data = await Post.find();
+    const posts = await Post.find();
 
     return res.render('admin/dashboard', {
-      locals,
       userToken,
       layout: adminLayout,
-      data,
+      posts,
     });
   } catch (error) {
     console.error('Error in getDashboard method');
@@ -310,7 +311,7 @@ export const getEditPost = async (req, res, next) => {
         res.locals.post = post;
         return res.render('admin/edit-post');
       } catch (error) {
-        console.error('error fetching posts', error.message);
+        console.error('error fetching posts: ', error.message);
         res.locals.messageClass = 'failure';
         res.locals.message = 'Error fetching posts';
         return res.redirect('/dashboard');
@@ -322,10 +323,9 @@ export const getEditPost = async (req, res, next) => {
   }
 };
 
-// post edit post controller
 export const postEditPost = async (req, res, next) => {
   try {
-    if (req.method === 'POST') {
+    if (req.method === 'PUT') {
       res.locals.title = 'Edit Post';
       res.locals.description = 'Edit Post ';
       res.locals.layout = adminLayout;
@@ -337,12 +337,22 @@ export const postEditPost = async (req, res, next) => {
       const { title, category, body } = req.body;
 
       try {
-        await Post.findOneAndUpdate(
-          { _id: new ObjectId(postId) },
-          { title, category, body },
+        await Post.findByIdAndUpdate(
+          postId,
+          {
+            title,
+            category,
+            body,
+            updatedAt: Date.now(),
+          },
           { new: true },
         );
-        res.redirect('/dashboard');
+        console.log('postId after updating', postId);
+        res.locals.messageClass = 'success';
+        res.locals.message = 'Updated successfully';
+        res.locals.data = '';
+        res.locals.posts = await Post.find();
+        return res.render('admin/dashboard');
       } catch (error) {
         console.error('error updating post', error.message);
         return res.redirect(`/edit-post/${postId}`);
@@ -355,25 +365,75 @@ export const postEditPost = async (req, res, next) => {
 };
 
 // get delete post controller
-export const getDeletePost = async (req, res, next) => {
-
-};
-
-// post delete post controller
 export const postDeletePost = async (req, res, next) => {
+  const postId = req.params.id;
+  console.log('postId from getDeletePost: ', postId);
 
+  try {
+    if (req.method === 'DELETE') {
+      const singlePost = await Post.findById(postId);
+
+      const archivePost = await ArchivedPost.create({
+        title: singlePost.title,
+        category: singlePost.category,
+        body: singlePost.body,
+        createdAt: singlePost.createdAt,
+        deletedAt: singlePost.updatedAt,
+      });
+      console.log('archivedPost created: ', archivePost);
+      const postTitle = singlePost.title;
+      await Post.deleteOne({ _id: postId });
+      console.log('post deleted: ', postTitle);
+      res.locals.messageClass = 'success';
+      res.locals.message = `${postTitle} deleted successfully`;
+      res.locals.data = '';
+      res.locals.posts = await Post.find();
+      res.locals.layout = adminLayout;
+      res.locals.userToken = req.cookies.token;
+      return res.render('admin/dashboard');
+    }
+  } catch (error) {
+    console.error('error in getDeletePost page: ', error.message);
+    next(error);
+  }
 };
 
-export const getNotes = async (req, res, next) => {
+export const getArchive = async (req, res, next) => {
   try {
-    const locals = {
-      title: 'Dashboard Page',
-      description: 'My Dashboard',
-    };
-    const userToken = req.cookies.token;
-    return res.render('admin/notes', { locals, userToken, layout: adminLayout });
+    res.locals.title = 'Archive Page';
+    res.locals.description = 'My Deleted Posts';
+    res.locals.message = 'Archived/Deleted Posts';
+    res.locals.messageClass = 'success';
+    const archivedPosts = await ArchivedPost.find();
+
+    res.locals.userToken = req.cookies.token;
+    return res.render('admin/archive', { archivedPosts, layout: adminLayout });
   } catch (error) {
-    console.error('Error in getDashboard method');
+    console.error('Error in getArchive method', error.message);
+    next(error);
+  }
+};
+
+export const getArchivedPosts = async (req, res, next) => {
+  try {
+    res.locals.title = 'Archived Post';
+    res.locals.description = 'My Deleted Post';
+    res.locals.message = 'Archived/Deleted Post';
+    res.locals.messageClass = 'success';
+    res.locals.userToken = req.cookies.token;
+
+    const archivedPostId = req.params.id;
+    const archivedPost = await ArchivedPost.findById(archivedPostId);
+    if (!archivedPost) {
+      return res.redirect('/archive');
+    }
+    res.locals.titleValue = archivedPost.title;
+    res.locals.categoryValue = archivedPost.category;
+    res.locals.bodyValue = archivedPost.body;
+
+    return res.render('admin/archived-posts', { archivedPost, layout: adminLayout });
+  } catch (error) {
+    console.error('Error in getArchive method', error.message);
     next(error);
   }
 };
