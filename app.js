@@ -6,6 +6,7 @@ import MongoStore from 'connect-mongo';
 import session from 'express-session';
 import express from 'express';
 import expressEjsLayouts from 'express-ejs-layouts';
+import methodOverride from 'method-override';
 import mainRouter from './server/routes/main';
 import errorRouter from './server/routes/error';
 import adminRouter from './server/routes/admin';
@@ -57,7 +58,7 @@ app.use(session({
 }));
 // The session middleware adds a req.session object to each request, allowing the storage
 //  and retrieval of data specific to a user's session.
-
+app.use(methodOverride('_method'));
 // middle ware
 app.use(express.static('static'));
 app.use(expressEjsLayouts);
