@@ -1,4 +1,13 @@
 <h1>DASHBOARD</h1>
+<!-- Display the message if available -->
+<div class="messageClass <%= messageClass %>">
+    <% if (message) { %>
+        <p><%= message %> <%= data.username %></p>
+        <span class="close" onclick="this.parentElement.style.display='none'">&times;</span>
+    <%  } %>
+        
+</div>
+
 <div class="admin-title">
     <h2>
         Posts
@@ -6,8 +15,9 @@
     <a href="/add-post" class="btn">+ Add New</a>
 </div>
 
+
 <ul class="admin-posts">
-    <% data.forEach(post => { %>
+    <% posts.forEach(post => { %>
      <li>
         <a href="/post/<%= post._id %>">
         <%= post.title %> &nearr;
