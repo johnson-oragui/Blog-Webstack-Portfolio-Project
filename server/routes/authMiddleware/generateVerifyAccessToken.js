@@ -6,7 +6,7 @@ export function generateAcessToken(user) {
     username: user.username,
   };
 
-  const options = { expiresIn: '30m' };
+  const options = { expiresIn: '60m' };
 
   const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, options);
   console.log('token from generateAceesToken: ', token);
