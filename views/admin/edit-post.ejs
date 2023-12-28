@@ -13,7 +13,7 @@
         
 </div>
 
-<form action="/edit-post/<%= post._id %>" method="POST">
+<form action="/edit-post/<%= post._id %>?_method=PUT" method="POST">
 
     <label for="title"><b>Title</b></label>
     <input type="text" placeholder="Post Title" name="title" value="<%= titleValue ?? '' %>">
