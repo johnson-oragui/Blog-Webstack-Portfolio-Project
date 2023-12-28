@@ -1,0 +1,20 @@
+<h1>ARCHIVE</h1>
+<!-- Display the message if available -->
+<div class="messageClass <%= messageClass %>">
+    <% if (message) { %>
+        <p><%= message %></p>
+        <span class="close" onclick="this.parentElement.style.display='none'">&times;</span>
+    <%  } %>
+        
+</div>
+
+
+<ul class="admin-posts">
+    <% archivedPosts.forEach(post => { %>
+     <li>
+        <a href="/archived-posts/<%= post._id %>">
+        <%= post.title %> &nearr;
+        </a>
+     </li>
+    <% }) %>
+</ul>
