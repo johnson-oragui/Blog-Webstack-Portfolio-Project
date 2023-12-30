@@ -267,3 +267,40 @@ app.use('/', mainRouter);
 app.use('/', errorRouter);
 // get methods for admin pages
 app.use('/', adminRouter);
+
+
+
+Issuer (iss) Claim:
+
+The "issuer" claim identifies the entity that issued the token. It allows the recipient to verify the source of the token.
+When you include the issuer claim, you're stating that the token was issued by a specific entity (your server, for example).
+Audience (aud) Claim:
+
+The "audience" claim identifies the intended audience for the token. It specifies who the token is intended for.
+When you include the audience claim, you're specifying that the token is meant for a particular audience (your application, for example).
+Including these claims helps prevent certain types of token-related attacks:
+
+Issuer Claim (iss): It guards against tokens issued by unauthorized entities. If a token is presented with an incorrect issuer, it can be rejected.
+
+Audience Claim (aud): It guards against tokens being used by unintended parties. If a token is presented to an audience that doesn't match the intended audience, it can be rejected.
+
+It's important to note that the effectiveness of these claims depends on proper implementation and adherence to security best practices. Including issuer and audience claims provides a way to establish trust and prevent misuse of tokens within a specific context.
+
+if a token is presented to my application, and the issuer is not in my .env, the token will be rejected even if the token string is correct.
+
+ If you include the "issuer" (iss) claim in your JWTs and your verification logic checks that claim, the token will be rejected if the issuer specified in the token does not match the expected issuer (specified in your .env or elsewhere in your configuration).
+
+Here's a breakdown of how it works:
+
+Token Creation:
+
+When you generate a JWT, you include the issuer claim (iss) in the payload. For example, you set it to the value of your application's name or a unique identifier.
+Token Presentation:
+
+When a client presents a token to your application, the token includes the issuer claim.
+Token Verification:
+
+Your server-side code (verification logic) checks the issuer claim in the presented token against the expected issuer value (configured in your .env or elsewhere).
+If the issuer claim in the token matches the expected issuer, the token is considered valid.
+If the issuer claim in the token does not match the expected issuer, the token is rejected.
+This helps ensure that tokens presented to your application were indeed issued by the expected entity. It's a security measure to prevent the acceptance of tokens from unauthorized issuers.
