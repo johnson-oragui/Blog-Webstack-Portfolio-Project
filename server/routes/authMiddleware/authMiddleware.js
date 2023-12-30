@@ -3,10 +3,12 @@ import { generateRefreshToken, verifyRefreshToken } from './generateFreshToken';
 import { generateAcessToken, verifyAccessToken } from './generateVerifyAccessToken';
 
 export default function authenticationMiddleware(req, res, next) {
-  const token = req.cookies.token;
+  // Token for authentication
+  const { token } = req.cookies.token;
   console.log('token from AuthMiddleware: ', token);
 
-  const refreshToken = req.cookies.refreshToken;
+  // refreshToken for refreshing tokens when token expires
+  const { refreshToken } = req.cookies.refreshToken;
   console.log('refreshToken from AuthMiddleware: ', refreshToken);
   console.log('req.cookies from AuthMiddleware: ', req.cookies);
 
@@ -41,8 +43,8 @@ export default function authenticationMiddleware(req, res, next) {
         req.userId = refreshVerification.data.id;
         console.log('from refreshVerification.data.id req.userId', req.userId);
 
-        res.cookie('token', freshAccessToken, { httpOnly: true });
-        res.cookie('token', newAccessToken, { httpOnly: true });
+        res.cookie('refreshToken', freshAccessToken);
+        res.cookie('token', newAccessToken);
 
         next();
       } else {
