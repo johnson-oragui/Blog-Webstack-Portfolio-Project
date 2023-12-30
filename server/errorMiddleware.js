@@ -4,6 +4,9 @@ import { NotFoundError, UnauthorizedError } from './errorClasses';
 const errorMiddleware = ((err, req, res, next) => {
   console.error(err.stack);
 
+  // Call next without any conditions to ensure execution of subsequent middleware
+  next();
+
   // Check the type of error and render the appropriate EJS page
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     // Handle JSON parse error
@@ -19,8 +22,6 @@ const errorMiddleware = ((err, req, res, next) => {
     // Default error handling
     return res.redirect('/serverError');
   }
-  // Call next without any conditions to ensure execution of subsequent middleware
-  next();
 });
 
 export default errorMiddleware;
