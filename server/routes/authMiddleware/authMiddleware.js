@@ -4,11 +4,11 @@ import { generateAcessToken, verifyAccessToken } from './generateVerifyAccessTok
 
 export default function authenticationMiddleware(req, res, next) {
   // Token for authentication
-  const { token } = req.cookies.token;
+  const { token } = req.cookies;
   console.log('token from AuthMiddleware: ', token);
 
   // refreshToken for refreshing tokens when token expires
-  const { refreshToken } = req.cookies.refreshToken;
+  const { refreshToken } = req.cookies;
   console.log('refreshToken from AuthMiddleware: ', refreshToken);
   console.log('req.cookies from AuthMiddleware: ', req.cookies);
 
