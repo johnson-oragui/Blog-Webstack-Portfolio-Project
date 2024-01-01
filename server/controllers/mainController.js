@@ -65,6 +65,10 @@ export const getPost = async (req, res, next) => {
 
     // Set the user token in locals from request cookies
     res.locals.userToken = req.cookies.token;
+    res.locals.authorValue = '';
+    res.locals.commentValue = '';
+    res.locals.message = '';
+    res.locals.messageClasses = '';
 
     // Check if the post ID is missing
     if (!id) {
@@ -82,12 +86,52 @@ export const getPost = async (req, res, next) => {
       // Render the 401 error page if the data is not found
       return res.render('error401');
     }
+    console.log('comments: ', data.comments);
 
     // Render the post template with the retrieved data
-    return res.render('post', { data });
+    return res.render('post', { data, comments: data.comments });
   } catch (error) {
     console.error('Error in getPost method', error);
     // Handle errors by passing them to the next middleware
+    next(error);
+  }
+};
+
+export const postAddComment = async (req, res, next) => {
+  try {
+    // retrieve the post id from the client request
+    const { id } = req.params;
+    // retrieve the author and content for comments
+    const { author, content } = req.body;
+
+    // check for a comment, id, and author
+    if (!id || !author || !content) {
+      console.error('required fields missing: ', id, author);
+      res.redirect(`/post/${id}`);
+    }
+
+    // find the post by Id
+    const post = await Post.findById(id);
+
+    // check if the post is not found
+    if (!post) {
+      console.error('post not found: ', id);
+      res.redirect(`/post/${id}`);
+    }
+
+    // add the new comment to the post
+    post.comments.push({
+      author,
+      content,
+      createAt: Date.now(),
+    });
+
+    // save the post
+    await post.save();
+
+    res.redirect(`/post/${id}`);
+  } catch (error) {
+    console.error('error in postAddComment page: ', error.message);
     next(error);
   }
 };
