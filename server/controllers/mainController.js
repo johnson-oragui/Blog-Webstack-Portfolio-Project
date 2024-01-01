@@ -86,13 +86,44 @@ export const getPost = async (req, res, next) => {
       // Render the 401 error page if the data is not found
       return res.render('error401');
     }
-    console.log('comments: ', data.comments);
+    // console.log('comments: ', data.comments);
 
     // Render the post template with the retrieved data
     return res.render('post', { data, comments: data.comments });
   } catch (error) {
     console.error('Error in getPost method', error);
     // Handle errors by passing them to the next middleware
+    next(error);
+  }
+};
+
+export const getAddComment = async (req, res, next) => {
+  try {
+    // retrieve the post id from the client request
+    const { id, commentId } = req.params;
+    res.locals.userToken = req.cookies.token;
+    res.locals.commentValue = '';
+    res.locals.authorValue = '';
+
+    // find the post by Id
+    const post = await Post.findById(id);
+
+    // check if the post is not found
+    if (!post) {
+      console.error('post not found: ', id);
+      res.redirect(`/post/${id}/comment/${commentId}`);
+    }
+
+    const comment = post.comments.id(commentId);
+    // check if the post is not found
+    if (!comment) {
+      console.error('post not found: ', comment);
+      res.redirect(`/post/${id}/comment/${commentId}`);
+    }
+
+    res.render('comment', { comment, post });
+  } catch (error) {
+    console.error('error in getAddComment: ', error.message);
     next(error);
   }
 };
@@ -132,6 +163,41 @@ export const postAddComment = async (req, res, next) => {
     res.redirect(`/post/${id}`);
   } catch (error) {
     console.error('error in postAddComment page: ', error.message);
+    next(error);
+  }
+};
+
+export const postAddReplyComment = async (req, res, next) => {
+  try {
+    const { id, commentId } = req.params;
+
+    const { author, content } = req.body;
+
+    const post = await Post.findById(id);
+    // check if the post is not found
+    if (!post) {
+      console.error('post not found: ', id);
+      res.redirect(`/post/${id}/comment/${commentId}`);
+    }
+
+    const comment = post.comments.id(commentId);
+    // check if the post is not found
+    if (!comment) {
+      console.error('post not found: ', comment);
+      res.redirect(`/post/${id}/comment/${commentId}`);
+    }
+
+    comment.replies.push({
+      author,
+      content,
+      createdAt: Date.now(),
+    });
+
+    await post.save();
+
+    res.redirect(`/post/${id}/comment/${commentId}`);
+  } catch (error) {
+    console.error('error in postAddReplyComment: ', error);
     next(error);
   }
 };
