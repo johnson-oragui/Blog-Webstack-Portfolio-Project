@@ -2,6 +2,8 @@ import express from 'express';
 import {
   getHomePage,
   postAddComment,
+  getAddComment,
+  postAddReplyComment,
   getAboutPage,
   getContactPage,
   getPost,
@@ -21,7 +23,11 @@ router.get('/contact', getContactPage);
 // Route to handle requests for individual posts
 router.get('/post/:id', getPost);
 
+router.get('/post/:id/comment/:commentId', getAddComment);
+
 // Route to handle requests for adding comments
 router.post('/post/:id/comment', postAddComment);
+
+router.post('/post/:id/comment/:commentId/reply', postAddReplyComment);
 
 export default router;
