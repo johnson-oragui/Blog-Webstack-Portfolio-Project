@@ -1,0 +1,24 @@
+<h1>COMMENT</h1>
+<a href="/post/<%= post._id %>/">Back</a>
+<p>
+    <strong><%= comment.author %>:</strong> <%= comment.content %>
+</p>
+<!-- Display replies -->
+<ul>
+    <% comment.replies.forEach(reply => { %>
+        <li>
+            <strong><%= reply.author %>:</strong> <%= reply.content %>
+        </li>
+    <% }) %>
+</ul>
+
+<form action="/post/<%= post._id %>/comment/<%= comment._id %>/reply/" method="POST">
+
+    <label for="author">Your name</label>
+    <input type="text" name="author" placeholder="Your Name">
+
+    <label for="content">Your reply</label>
+    <input type="text" name="content" placeholder="Your reply">
+
+    <input type="submit" value="reply">
+</form>
