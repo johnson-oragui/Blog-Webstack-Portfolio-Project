@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import CommentSchema from './comments';
 
 // Define the schema for the Post model
 const PostSchema = mongoose.Schema({
@@ -27,6 +28,13 @@ const PostSchema = mongoose.Schema({
     type: Date,
     default: Date.now, // Default to the current date and time
   },
+  // Comments associated with the post
+  comments: [
+    {
+      type: CommentSchema,
+      required: false,
+    },
+  ],
 });
 
 // Create and export the Post model based on the defined schema
