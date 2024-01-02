@@ -196,7 +196,7 @@ export const getDashboard = async (req, res, next) => {
     res.locals.message = 'Welcome';
     res.locals.messageClass = 'success';
 
-    // Fetch all posts from the database
+    // Fetch all posts from the database 
     const posts = await Post.find();
 
     // Render the admin dashboard view with user token and fetched posts
