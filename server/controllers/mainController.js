@@ -36,7 +36,7 @@ export const getHomePage = async (req, res, next) => {
     const prevPage = page > 1 ? page - 1 : null;
 
     // Render the index template with locals and pagination data
-    res.render('index', {
+    return res.render('index', {
       locals,
       data,
       current: page,
@@ -111,17 +111,17 @@ export const getAddComment = async (req, res, next) => {
     // check if the post is not found
     if (!post) {
       console.error('post not found: ', id);
-      res.redirect(`/post/${id}/comment/${commentId}`);
+      return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
     const comment = post.comments.id(commentId);
     // check if the post is not found
     if (!comment) {
       console.error('post not found: ', comment);
-      res.redirect(`/post/${id}/comment/${commentId}`);
+      return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
-    res.render('comment', { comment, post });
+    return res.render('comment', { comment, post });
   } catch (error) {
     console.error('error in getAddComment: ', error.message);
     next(error);
@@ -138,7 +138,7 @@ export const postAddComment = async (req, res, next) => {
     // check for a comment, id, and author
     if (!id || !author || !content) {
       console.error('required fields missing: ', id, author);
-      res.redirect(`/post/${id}`);
+      return res.redirect(`/post/${id}`);
     }
 
     // find the post by Id
@@ -147,7 +147,7 @@ export const postAddComment = async (req, res, next) => {
     // check if the post is not found
     if (!post) {
       console.error('post not found: ', id);
-      res.redirect(`/post/${id}`);
+      return res.redirect(`/post/${id}`);
     }
 
     // add the new comment to the post
@@ -160,7 +160,7 @@ export const postAddComment = async (req, res, next) => {
     // save the post
     await post.save();
 
-    res.redirect(`/post/${id}`);
+    return res.redirect(`/post/${id}`);
   } catch (error) {
     console.error('error in postAddComment page: ', error.message);
     next(error);
@@ -173,18 +173,27 @@ export const postAddReplyComment = async (req, res, next) => {
 
     const { author, content } = req.body;
 
+    if (!author) {
+      console.error('required fields missing: ', author);
+      return res.redirect(`/post/${id}/comment/${commentId}`);
+    }
+    if (!content) {
+      console.error('required fields missing: ', content);
+      return res.redirect(`/post/${id}/comment/${commentId}`);
+    }
+
     const post = await Post.findById(id);
     // check if the post is not found
     if (!post) {
       console.error('post not found: ', id);
-      res.redirect(`/post/${id}/comment/${commentId}`);
+      return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
     const comment = post.comments.id(commentId);
     // check if the post is not found
     if (!comment) {
       console.error('post not found: ', comment);
-      res.redirect(`/post/${id}/comment/${commentId}`);
+      return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
     comment.replies.push({
@@ -195,7 +204,7 @@ export const postAddReplyComment = async (req, res, next) => {
 
     await post.save();
 
-    res.redirect(`/post/${id}/comment/${commentId}`);
+    return res.redirect(`/post/${id}/comment/${commentId}`);
   } catch (error) {
     console.error('error in postAddReplyComment: ', error);
     next(error);
