@@ -32,7 +32,6 @@ export default function authenticationMiddleware(req, res, next) {
       if (!decodedToken.success) {
         return res.redirect('/refresh');
       }
-      console.log('from authenticationMiddleware decodedToken : ', decodedToken);
       next();
     } else if (refreshToken) {
       const refreshVerification = verifyRefreshToken(refreshToken);
