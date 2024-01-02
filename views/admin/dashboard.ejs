@@ -33,3 +33,11 @@
      </li>
     <% }) %>
 </ul>
+
+<% if (nextPage !== null) { %>
+    <a href="/dashboard/?page=<%= nextPage %>" class="pagination">&lt; View Older Posts</a>
+<% } %>
+
+<% if (nextPage === null || current > 1) { %>
+    <a href="/dashboard/?page=<%= parseInt(prevPage, 10) %>" class="pagination">&lt; View Newer Posts</a>
+<% } %>
