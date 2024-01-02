@@ -439,6 +439,24 @@ export const postEditPost = async (req, res, next) => {
   }
 };
 
+export const getDeletePostConfirmation = async (req, res, next) => {
+  const postId = req.params.id;
+
+  try {
+    res.locals.userToken = req.cookies.token;
+    const singlePost = await Post.findById(postId);
+    if (!singlePost) {
+      console.log('Could not find post');
+      return res.redirect('/dashboard');
+    }
+
+    res.render('admin/confirmation', { singlePost, layout: adminLayout });
+  } catch (error) {
+    console.error('error in getDeletePostConfirmation method: ', error.message);
+    next(error);
+  }
+};
+
 /**
  * Controller function to handle the deletion of a post.
  * @param {Object} req - Express request object.
