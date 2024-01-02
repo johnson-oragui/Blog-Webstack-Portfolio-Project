@@ -9,7 +9,10 @@
         <li>
             <strong><%= comment.author %>:</strong> <%= comment.content %>
         </li>
-        <a href="/post/<%= data._id %>/comment/<%= comment._id %>">Reply</a>
+            <a href="/post/<%= data._id %>/comment/<%= comment._id %>">Reply</a>
+            <span style="margin-right: 30px;"></span>
+            <a href="/post/<%= data._id %>/comment/<%= comment._id %>">View Replies</a>
+        
     <% }) %>
 </ul>
 
