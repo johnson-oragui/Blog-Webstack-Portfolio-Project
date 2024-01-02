@@ -19,8 +19,6 @@ export const getLoginPage = async (req, res, next) => {
     res.locals.description = 'Admin DashBoard';
     res.locals.userToken = req.cookies.token;
 
-    console.log('userToken from getLoginPage:', req.cookies.token);
-
     return res.render('admin/login', {
       layout: adminLayout,
       message: 'Please enter your data to login',
@@ -48,7 +46,7 @@ export const postLoginPage = async (req, res, next) => {
       description: 'Admin DashBoard',
     };
     // Get user token from cookies
-    let userToken = req.cookies.token;
+    const userToken = req.cookies.token;
 
     // Check if the request method is POST
     if (req.method === 'POST') {
@@ -108,7 +106,7 @@ export const postLoginPage = async (req, res, next) => {
 
       // Check if the password is incorrect
       if (!pwdMatch) {
-        console.log('Incorrect Credentials');
+        console.error('Incorrect Credentials');
         // Render login view with an error message
         return res.render('admin/login', {
           locals,
@@ -123,20 +121,19 @@ export const postLoginPage = async (req, res, next) => {
 
       // Generate JWT token and refresh token
       const token = generateAcessToken(user);
-      userToken = token;
       const refreshToken = generateRefreshToken(user);
 
       // Set JWT token and refresh token as cookies
-      res.cookie('token', token, { httpOnly: true });
-      res.cookie('refreshToken', refreshToken, { httpOnly: true });
+      res.cookie('token', token);
+      res.cookie('refreshToken', refreshToken);
 
       // Redirect to the dashboard
       return res.redirect('/dashboard');
     }
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in postLoginPage method', error.message);
-    console.error('Error details:', JSON.stringify(error));
+    // console.error('Error in postLoginPage method', error.message);
+    // console.error('Error details:', JSON.stringify(error));
     next(error);
   }
 };
@@ -170,7 +167,7 @@ export const getRegPage = async (req, res, next) => {
     }
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in getRegPage', error.message);
+    // console.error('Error in getRegPage', error.message);
     next(error);
   }
 };
@@ -207,7 +204,7 @@ export const getDashboard = async (req, res, next) => {
     });
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in getDashboard method');
+    // console.error('Error in getDashboard method', error.message);
     next(error);
   }
 };
@@ -225,13 +222,13 @@ export const getAddPost = async (req, res, next) => {
       // Set locals variables for rendering the view
       res.locals.title = 'Add post Page';
       res.locals.description = 'Add post';
-      
+
       // Define default values for the variables
       res.locals.titleValue = '';
       res.locals.categoryValue = '';
       res.locals.bodyValue = '';
 
-      console.log('userToken from getAddPost route: ', req.cookies.token);
+      // console.log('userToken from getAddPost route: ', req.cookies.token);
 
       // Render the add post view with default values and a success message
       return res.render('admin/add-post', {
@@ -243,7 +240,7 @@ export const getAddPost = async (req, res, next) => {
     }
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in getAddPost method');
+    // console.error('Error in getAddPost method: ', error.message);
     next(error);
   }
 };
@@ -267,12 +264,9 @@ export const postAddPost = async (req, res, next) => {
       // Extract data from request body
       const { title, category, body } = req.body;
 
-      console.log('title section, check for title');
-
       // Check if title is missing or empty
       if (!title || title.trim() === '') {
-        console.log('title missing');
-        console.log('body: ', body);
+        console.error('title missing');
 
         // Render the add post view with an error message
         res.locals.titleValue = title;
@@ -283,13 +277,10 @@ export const postAddPost = async (req, res, next) => {
           bodyValue: body,
         });
       }
-      console.log('title section, check for title passed');
-
-      console.log('body section, check for body');
 
       // Check if body is missing or empty
       if (!body || body.trim() === '') {
-        console.log('body missing');
+        console.error('body missing');
 
         // Render the add post view with an error message
         res.locals.titleValue = title;
@@ -300,7 +291,6 @@ export const postAddPost = async (req, res, next) => {
           bodyValue: body,
         });
       }
-      console.log('body section, check for body passed');
 
       // Create an object with data to insert into the database
       const dataToInsert = {
@@ -313,15 +303,14 @@ export const postAddPost = async (req, res, next) => {
       const newPost = new Post(dataToInsert);
 
       // Insert the new post into the database
-      const data = await Post.create(newPost);
-      console.log('successfully inserted: ', data._id);
+      await Post.create(newPost);
 
       // Redirect to the dashboard after successful insertion
       return res.redirect('/dashboard');
     }
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in postAddPost method');
+    // console.error('Error in postAddPost method: ', error.message);
     next(error);
   }
 };
@@ -346,17 +335,14 @@ export const getEditPost = async (req, res, next) => {
 
       // Extract post id from request parameters
       const postId = req.params.id;
-      console.log('postId from getEditPost: ', postId);
 
       try {
         // Find the post in the database by id
         const post = await Post.findById(postId);
         if (!post) {
-          console.log('Could not find post');
+          console.error('Could not find post');
           return res.redirect('/dashboard');
         }
-
-        console.log('post found: ', post);
 
         // Set locals variables with post details for rendering the view
         res.locals.titleValue = post.title;
@@ -376,7 +362,7 @@ export const getEditPost = async (req, res, next) => {
     }
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in getEditPost method', error.message);
+    // console.error('Error in getEditPost method', error.message);
     next(error);
   }
 };
@@ -399,7 +385,6 @@ export const postEditPost = async (req, res, next) => {
 
       // Extract post id from request parameters
       const postId = req.params.id;
-      console.log('postId from postEditPost: ', postId);
 
       // Extract updated post details from request body
       const { title, category, body } = req.body;
@@ -416,7 +401,6 @@ export const postEditPost = async (req, res, next) => {
           },
           { new: true },
         );
-        console.log('postId after updating', postId);
 
         // Set locals variables for rendering the view
         res.locals.messageClass = 'success';
@@ -428,17 +412,23 @@ export const postEditPost = async (req, res, next) => {
         return res.render('admin/dashboard');
       } catch (error) {
         // Handle errors by logging and redirecting to the edit post page
-        console.error('error updating post', error.message);
+        // console.error('error updating post', error.message);
         return res.redirect(`/edit-post/${postId}`);
       }
     }
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('error in postEditPost method', error.message);
+    // console.error('error in postEditPost method', error.message);
     next(error);
   }
 };
 
+/**
+ * Controller function to handle the deletion confirmation of a post.
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ */
 export const getDeletePostConfirmation = async (req, res, next) => {
   const postId = req.params.id;
 
@@ -446,13 +436,13 @@ export const getDeletePostConfirmation = async (req, res, next) => {
     res.locals.userToken = req.cookies.token;
     const singlePost = await Post.findById(postId);
     if (!singlePost) {
-      console.log('Could not find post');
+      console.error('Could not find post');
       return res.redirect('/dashboard');
     }
 
     res.render('admin/confirmation', { singlePost, layout: adminLayout });
   } catch (error) {
-    console.error('error in getDeletePostConfirmation method: ', error.message);
+    // console.error('error in getDeletePostConfirmation method: ', error.message);
     next(error);
   }
 };
@@ -466,7 +456,6 @@ export const getDeletePostConfirmation = async (req, res, next) => {
 export const postDeletePost = async (req, res, next) => {
   // Extract post id from request parameters
   const postId = req.params.id;
-  console.log('postId from getDeletePost: ', postId);
 
   try {
     // Check if the request method is DELETE
@@ -475,7 +464,7 @@ export const postDeletePost = async (req, res, next) => {
       const singlePost = await Post.findById(postId);
 
       // Create an archived post with the details of the deleted post
-      const archivePost = await ArchivedPost.create({
+      await ArchivedPost.create({
         title: singlePost.title,
         category: singlePost.category,
         body: singlePost.body,
@@ -483,14 +472,11 @@ export const postDeletePost = async (req, res, next) => {
         deletedAt: singlePost.updatedAt,
       });
 
-      console.log('archivedPost created: ', archivePost);
-
       // Store the title of the deleted post
       const postTitle = singlePost.title;
 
       // Delete the post from the main posts collection
       await Post.deleteOne({ _id: postId });
-      console.log('post deleted: ', postTitle);
 
       // Set locals variables for rendering the view
       res.locals.messageClass = 'success';
@@ -505,7 +491,7 @@ export const postDeletePost = async (req, res, next) => {
     }
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('error in postDeletePost page: ', error.message);
+    // console.error('error in postDeletePost page: ', error.message);
     next(error);
   }
 };
@@ -534,7 +520,7 @@ export const getArchive = async (req, res, next) => {
     return res.render('admin/archive', { archivedPosts, layout: adminLayout });
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in getArchive method', error.message);
+    // console.error('Error in getArchive method', error.message);
     next(error);
   }
 };
@@ -562,6 +548,7 @@ export const getArchivedPosts = async (req, res, next) => {
 
     // If the archived post is not found, redirect to the archive page
     if (!archivedPost) {
+      console.error('Archived post not found');
       return res.redirect('/archive');
     }
 
@@ -574,7 +561,7 @@ export const getArchivedPosts = async (req, res, next) => {
     return res.render('admin/archived-posts', { archivedPost, layout: adminLayout });
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
-    console.error('Error in getArchivedPosts method', error.message);
+    // console.error('Error in getArchivedPosts method', error.message);
     next(error);
   }
 };

@@ -21,7 +21,6 @@ export function generateAcessToken(user) {
   const secretKey = process.env.ACCESS_TOKEN_SECRET;
 
   const token = jwt.sign(payload, secretKey, options);
-  console.log('Access token generated:', token);
   return token;
 }
 
@@ -43,7 +42,7 @@ export function verifyAccessToken(token) {
 
     return { success: true, data: decoded };
   } catch (error) {
-    console.error('Error verifying access token:', error.message);
+    // console.error('Error verifying access token:', error.message);
     return { success: false, error: error.message };
   }
 }

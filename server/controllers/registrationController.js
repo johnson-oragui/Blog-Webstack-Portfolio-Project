@@ -34,7 +34,7 @@ export default async function postRegPage(req, res, next) {
 
       // Validation checks for form fields
       if (!firstname || firstname.trim() === '') {
-        console.error('firstname missing', firstname);
+        console.error('firstname missing');
         return res.render('admin/register', {
           message: 'First Name is missing',
           messageClass: 'failure',
@@ -49,7 +49,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check if lastname is present
       if (!lastname || lastname.trim() === '') {
-        console.error('lastname missing', lastname);
+        console.error('lastname missing');
         return res.render('admin/register', {
           message: 'Last Name is missing',
           messageClass: 'failure',
@@ -64,7 +64,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check if username is present
       if (!username || username.trim() === '') {
-        console.error('username missing', username);
+        console.error('username missing');
         return res.render('admin/register', {
           message: 'Username is missing',
           messageClass: 'failure',
@@ -79,7 +79,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check if email is present
       if (!email || email.trim() === '') {
-        console.error('email missing', email);
+        console.error('email missing');
         return res.render('admin/register', {
           message: 'Email is missing',
           messageClass: 'failure',
@@ -94,7 +94,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check for password length
       if (password.length < 6) {
-        console.error('password must be upto 6 characters', password);
+        console.error('password must be upto six(6) characters');
         return res.render('admin/register', {
           message: 'Password must be upto six(6) characters',
           messageClass: 'failure',
@@ -109,7 +109,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check if password is present
       if (!password || password.trim() === '') {
-        console.error('password missing', password);
+        console.error('password missing');
         return res.render('admin/register', {
           message: 'Password is missing',
           messageClass: 'failure',
@@ -124,7 +124,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check for password2 length
       if (password2.length < 6) {
-        console.error('password2 must be upto 6 characters', password);
+        console.error('password2 must be upto six(6) characters');
         return res.render('admin/register', {
           message: 'Password Confirmation must be upto six(6) characters',
           messageClass: 'failure',
@@ -139,7 +139,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check if password is present
       if (!password2 || password2.trim() === '') {
-        console.error('password2 missing', password2);
+        console.error('password2 missing');
         return res.render('admin/register', {
           message: 'Confirm your Password',
           messageClass: 'failure',
@@ -155,7 +155,7 @@ export default async function postRegPage(req, res, next) {
       const passwordMatch = password === password2;
 
       if (!passwordMatch) {
-        console.error('password1 and password2 are not a match');
+        console.error('password1 and password Confirmation are not a match');
         return res.render('admin/register', {
           message: 'Both Passwords do not match',
           messageClass: 'failure',
@@ -218,7 +218,7 @@ export default async function postRegPage(req, res, next) {
 
       // Check if user was successfully added
       if (!user) {
-        console.log('cound not add user');
+        console.error('cound not add user');
         return res.render('admin/register', {
           message: 'Could not register the user, Please try again.',
           messageClass: 'failure',
@@ -242,7 +242,7 @@ export default async function postRegPage(req, res, next) {
       });
     }
   } catch (error) {
-    console.error('Error in getRegPage', error.message);
+    // console.error('Error in getRegPage', error.message);
     // Pass the error to the next middleware
     next(error);
   }

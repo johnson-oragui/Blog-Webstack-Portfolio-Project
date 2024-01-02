@@ -18,7 +18,7 @@ export async function hashedPwd(plainPassword) {
     return hashedPassword;
   } catch (error) {
     // Log an error message if there's an issue hashing the password
-    console.error('Error hashing password:', error.message);
+    // console.error('Error hashing password:', error.message);
 
     // Re-throw the error to propagate it to the calling code
     throw error;
@@ -41,7 +41,7 @@ export async function checkHashedPwd(plainPassword, hashedPassword) {
     return match;
   } catch (error) {
     // Log an error message if there's an issue comparing the passwords
-    console.error('Error comparing passwords:', error.message);
+    // console.error('Error comparing passwords:', error.message);
 
     // Re-throw the error to propagate it to the calling code
     throw error;

@@ -2,23 +2,26 @@ import jwt from 'jsonwebtoken';
 import { generateRefreshToken, verifyRefreshToken } from './generateFreshToken';
 import { generateAcessToken, verifyAccessToken } from './generateVerifyAccessToken';
 
+/**
+ * authenticationMiddleware
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @param {Function} next - The next middleware function.
+ */
 export default function authenticationMiddleware(req, res, next) {
   // Token for authentication
   const { token } = req.cookies;
-  console.log('token from AuthMiddleware: ', token);
 
   // refreshToken for refreshing tokens when token expires
   const { refreshToken } = req.cookies;
-  console.log('refreshToken from AuthMiddleware: ', refreshToken);
-  console.log('req.cookies from AuthMiddleware: ', req.cookies);
 
   if (!token) {
-    console.log('token not present');
+    console.error('token not present');
     // Redirect to login page
     return res.redirect('/login');
   }
   if ((!token && !refreshToken)) {
-    console.log('refreshToken not present');
     // Redirect to login page
     return res.redirect('/login');
   }
@@ -27,7 +30,6 @@ export default function authenticationMiddleware(req, res, next) {
     if (token) {
       const decodedToken = verifyAccessToken(token);
       if (!decodedToken.success) {
-        console.log('token expired, redirecting to refresh route');
         return res.redirect('/refresh');
       }
       console.log('from authenticationMiddleware decodedToken : ', decodedToken);
@@ -38,9 +40,6 @@ export default function authenticationMiddleware(req, res, next) {
       if (refreshVerification.success) {
         const freshAccessToken = generateRefreshToken(refreshVerification.data);
         const newAccessToken = generateAcessToken(refreshVerification.data);
-
-        req.userId = refreshVerification.data.id;
-        console.log('from refreshVerification.data.id req.userId', req.userId);
 
         res.cookie('refreshToken', freshAccessToken);
         res.cookie('token', newAccessToken);
@@ -53,11 +52,10 @@ export default function authenticationMiddleware(req, res, next) {
     }
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      console.log('token expired in authenticationMiddleware: ', JSON.stringify(error.message));
-      console.log('redirecting to refreshToken in authenticationMiddleware: ');
+      // console.log('token expired in authenticationMiddleware: ', JSON.stringify(error.message));
       return res.redirect('/refresh');
     }
-    console.error('Error in authenticationMiddleware: ', JSON.stringify(error.message));
+    // console.error('Error in authenticationMiddleware: ', JSON.stringify(error.message));
     // next(error);
     // Return to login page
     return res.redirect('/login');

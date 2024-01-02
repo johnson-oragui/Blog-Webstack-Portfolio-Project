@@ -15,7 +15,7 @@ export const getHomePage = async (req, res, next) => {
     };
 
     // Number of blog posts to display per page
-    const perPage = 5;
+    const perPage = 10;
 
     // Get the current page from the query parameters or default to 1
     const page = req.query.page || 1;
@@ -72,7 +72,7 @@ export const getPost = async (req, res, next) => {
 
     // Check if the post ID is missing
     if (!id) {
-      console.error('Id not found', id);
+      console.error('Id not found');
       // Render the 401 error page if the ID is missing
       return res.render('error401');
     }
@@ -82,16 +82,15 @@ export const getPost = async (req, res, next) => {
 
     // Check if the blog post is not found
     if (!data) {
-      console.error('Data not found', data);
+      console.error('Data not found');
       // Render the 401 error page if the data is not found
       return res.render('error401');
     }
-    // console.log('comments: ', data.comments);
 
     // Render the post template with the retrieved data
     return res.render('post', { data, comments: data.comments });
   } catch (error) {
-    console.error('Error in getPost method', error);
+    // console.error('Error in getPost method', error);
     // Handle errors by passing them to the next middleware
     next(error);
   }
@@ -110,20 +109,20 @@ export const getAddComment = async (req, res, next) => {
 
     // check if the post is not found
     if (!post) {
-      console.error('post not found: ', id);
+      console.error('post not found: ');
       return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
     const comment = post.comments.id(commentId);
     // check if the post is not found
     if (!comment) {
-      console.error('post not found: ', comment);
+      console.error('post not found: ');
       return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
     return res.render('comment', { comment, post });
   } catch (error) {
-    console.error('error in getAddComment: ', error.message);
+    // console.error('error in getAddComment: ', error.message);
     next(error);
   }
 };
@@ -137,7 +136,7 @@ export const postAddComment = async (req, res, next) => {
 
     // check for a comment, id, and author
     if (!id || !author || !content) {
-      console.error('required fields missing: ', id, author);
+      console.error('required fields missing: ');
       return res.redirect(`/post/${id}`);
     }
 
@@ -146,7 +145,7 @@ export const postAddComment = async (req, res, next) => {
 
     // check if the post is not found
     if (!post) {
-      console.error('post not found: ', id);
+      console.error('post not found: ');
       return res.redirect(`/post/${id}`);
     }
 
@@ -162,7 +161,7 @@ export const postAddComment = async (req, res, next) => {
 
     return res.redirect(`/post/${id}`);
   } catch (error) {
-    console.error('error in postAddComment page: ', error.message);
+    // console.error('error in postAddComment page: ', error.message);
     next(error);
   }
 };
@@ -174,25 +173,25 @@ export const postAddReplyComment = async (req, res, next) => {
     const { author, content } = req.body;
 
     if (!author) {
-      console.error('required fields missing: ', author);
+      console.error('required fields missing: ');
       return res.redirect(`/post/${id}/comment/${commentId}`);
     }
     if (!content) {
-      console.error('required fields missing: ', content);
+      console.error('required fields missing: ');
       return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
     const post = await Post.findById(id);
     // check if the post is not found
     if (!post) {
-      console.error('post not found: ', id);
+      console.error('post not found: ');
       return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
     const comment = post.comments.id(commentId);
     // check if the post is not found
     if (!comment) {
-      console.error('post not found: ', comment);
+      console.error('post not found: ');
       return res.redirect(`/post/${id}/comment/${commentId}`);
     }
 
@@ -206,7 +205,7 @@ export const postAddReplyComment = async (req, res, next) => {
 
     return res.redirect(`/post/${id}/comment/${commentId}`);
   } catch (error) {
-    console.error('error in postAddReplyComment: ', error);
+    // console.error('error in postAddReplyComment: ', error);
     next(error);
   }
 };

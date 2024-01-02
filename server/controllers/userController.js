@@ -13,7 +13,7 @@ export default async function insertUserData(userData) {
     return await User.create(userData);
   } catch (error) {
     // Log an error message if there's an issue creating the user
-    console.error('Error creating user:', error.message);
+    // console.error('Error creating user:', error.message);
 
     // Re-throw the error to propagate it to the calling code
     throw error;

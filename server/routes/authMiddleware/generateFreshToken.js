@@ -26,7 +26,6 @@ export function generateRefreshToken(user) {
   // Sign the refresh token with the payload, secret key, and options
   const freshToken = jwt.sign(payload, secretKey, options);
 
-  console.log('freshToken from generateRefreshToken', freshToken);
   return freshToken;
 }
 
@@ -47,10 +46,9 @@ export function verifyRefreshToken(token) {
       audience: process.env.JWT_AUDIENCE,
     });
 
-    console.log('decoded from verifyRefreshToken', decoded);
     return { success: true, data: decoded };
   } catch (error) {
-    console.error('error in verifyRefreshToken', error.message);
+    // console.error('error in verifyRefreshToken', error.message);
     return { success: false, error: error.message };
   }
 }

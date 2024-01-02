@@ -15,23 +15,21 @@ export default async function refreshToken(req, res, next) {
 
     // Check if tokens are missing
     if (!token || !refreshToken) {
-      console.log('Tokens missing');
+      console.error('Tokens missing');
       return res.redirect('/login');
     }
 
     // Verify the access token
     const verifiedAccessToken = verifyAccessToken(token);
-    console.log('Verified access token: ', verifiedAccessToken);
 
     // If the access token is expired, try using the refresh token
     if (verifiedAccessToken.error === 'jwt expired') {
       // Verify the refresh token
       const refreshVerification = verifyRefreshToken(refreshToken);
-      console.log('Refresh token verification: ', refreshVerification);
 
       // If refresh token verification fails, redirect to login
       if (!refreshVerification.success) {
-        console.log('Refresh token verification failed');
+        console.error('Refresh token verification failed');
         return res.redirect('/login');
       }
 
@@ -45,9 +43,6 @@ export default async function refreshToken(req, res, next) {
         username: refreshVerification.data.username,
       });
 
-      console.log('New access token: ', newAccessToken);
-      console.log('New refresh token: ', newRefreshToken);
-
       // Set the new tokens as cookies
       res.cookie('token', newAccessToken);
       res.cookie('refreshToken', newRefreshToken);
@@ -57,7 +52,7 @@ export default async function refreshToken(req, res, next) {
     }
   } catch (error) {
     // Handle errors and redirect to login
-    console.error('Error in refreshToken method', error.message);
+    // console.error('Error in refreshToken method', error.message);
     return res.redirect('/login');
   }
 }
