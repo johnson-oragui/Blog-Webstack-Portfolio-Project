@@ -27,11 +27,10 @@ export default function authenticationMiddleware(req, res, next) {
     if (token) {
       const decodedToken = verifyAccessToken(token);
       if (!decodedToken.success) {
+        console.log('token expired, redirecting to refresh route');
         return res.redirect('/refresh');
       }
       console.log('from authenticationMiddleware decodedToken : ', decodedToken);
-      req.userId = decodedToken.data.id;
-      console.log('from authenticationMiddleware req.userId: ', req.userId);
       next();
     } else if (refreshToken) {
       const refreshVerification = verifyRefreshToken(refreshToken);
