@@ -193,14 +193,36 @@ export const getDashboard = async (req, res, next) => {
     res.locals.message = 'Welcome';
     res.locals.messageClass = 'success';
 
-    // Fetch all posts from the database 
-    const posts = await Post.find();
+    // Number of blog posts to display per page
+    const perPage = 5;
 
-    // Render the admin dashboard view with user token and fetched posts
+    // Get the current page from the query parameters or default to 1
+    const page = req.query.page || 1;
+
+    // Fetch blog posts using aggregation, skip, and limit
+    const posts = await Post.aggregate([{ $sort: { createdAt: 1 } }])
+      .skip(perPage * page - perPage)
+      .limit(perPage)
+      .exec();
+
+    // Count total number of blog posts
+    const count = await Post.countDocuments();
+
+    // Calculate pagination parameters
+    const nextPage = parseInt(page, 10) + 1;
+    const totalPages = Math.ceil(count / perPage);
+    const hasNextPage = nextPage <= totalPages;
+    const prevPage = page > 1 ? page - 1 : null;
+
+    // Render the admin dashbpoard template with locals and pagination data
     return res.render('admin/dashboard', {
+      current: page,
+      nextPage: hasNextPage ? nextPage : null,
+      totalPages,
+      prevPage,
       userToken,
-      layout: adminLayout,
       posts,
+      layout: adminLayout,
     });
   } catch (error) {
     // Handle errors by logging and passing them to the next middleware
