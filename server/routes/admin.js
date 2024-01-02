@@ -10,6 +10,7 @@ import {
   postAddPost,
   getEditPost,
   postEditPost,
+  getDeletePostConfirmation,
   postDeletePost,
   getArchivedPosts,
 } from '../controllers/adminControllers';
@@ -36,6 +37,7 @@ router.get('/archive', authenticationMiddleware, getArchive);
 router.get('/add-post', authenticationMiddleware, getAddPost);
 router.get('/edit-post/:id', authenticationMiddleware, getEditPost);
 router.get('/archived-posts/:id', authenticationMiddleware, getArchivedPosts);
+router.get('/delete-post/confirmation/:id', authenticationMiddleware, getDeletePostConfirmation);
 
 // Post-related routes
 router.post('/add-post', authenticationMiddleware, postAddPost);
