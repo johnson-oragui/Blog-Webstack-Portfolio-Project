@@ -10,8 +10,8 @@ import { generateAcessToken, verifyAccessToken } from '../routes/authMiddleware/
 export default async function refreshToken(req, res, next) {
   try {
     // Extract tokens from cookies
-    const { token } = req.cookies.token;
-    const { refreshToken } = req.cookies.refreshToken;
+    const { token } = req.cookies;
+    const { refreshToken } = req.cookies;
 
     // Check if tokens are missing
     if (!token || !refreshToken) {
@@ -49,8 +49,8 @@ export default async function refreshToken(req, res, next) {
       console.log('New refresh token: ', newRefreshToken);
 
       // Set the new tokens as cookies
-      res.cookie('token', newAccessToken, { httpOnly: true });
-      res.cookie('refreshToken', newRefreshToken, { httpOnly: true });
+      res.cookie('token', newAccessToken);
+      res.cookie('refreshToken', newRefreshToken);
 
       // Redirect to the dashboard with the new tokens
       return res.redirect('/dashboard');
