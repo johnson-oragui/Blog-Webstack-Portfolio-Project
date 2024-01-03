@@ -1,4 +1,6 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import Post from '../models/post';
+import redisClient from '../dbUtils/redisClient';
 
 /**
  * @description Renders the Home Page with blog posts
@@ -8,14 +10,16 @@ import Post from '../models/post';
  */
 export const getHomePage = async (req, res, next) => {
   try {
+    // measure response time
+    const start = Date.now();
+
     // Locals object containing data for rendering the template
-    const locals = {
-      title: 'Home Page',
-      description: 'Blog Post with MongoDB and Node.js',
-    };
+    res.locals.title = 'Home Page';
+    res.locals.description = 'Blog Post with MongoDB and Node.js';
+    res.locals.userToken = req.cookies.token;
 
     // Number of blog posts to display per page
-    const perPage = 10;
+    const perPage = 5;
 
     // Get the current page from the query parameters or default to 1
     const page = req.query.page || 1;
@@ -35,15 +39,46 @@ export const getHomePage = async (req, res, next) => {
     const hasNextPage = nextPage <= totalPages;
     const prevPage = page > 1 ? page - 1 : null;
 
+    // use the same key as in redisRouteHandler.js
+    const key = `__blog__.${req.originalUrl}`;
+    try {
+      // Check if data is in cache
+      const cachedData = await redisClient.get(key);
+
+      if (cachedData) {
+        // Parse cached data and set it to a local variable
+        const parsedData = JSON.parse(cachedData);
+        console.log(parsedData);
+
+        // Render the index template with locals and pagination data
+        return res.render('index', {
+          data: parsedData,
+          current: page,
+          nextPage: hasNextPage ? nextPage : null,
+          totalPages,
+          prevPage,
+        });
+      }
+    } catch (error) {
+      console.error('error in getHomePage - Redis cache', error.message);
+      throw error;
+    }
+
+    // cache the response data
+    redisClient.setex(key, 60000, JSON.stringify(data));
+
+    // measure response time
+    const end = Date.now();
+
+    console.log('response time: ', end - start, 'ms');
+
     // Render the index template with locals and pagination data
     return res.render('index', {
-      locals,
       data,
       current: page,
       nextPage: hasNextPage ? nextPage : null,
       totalPages,
       prevPage,
-      userToken: req.cookies.token,
     });
   } catch (error) {
     console.error('Error in getHomePage method', error);
