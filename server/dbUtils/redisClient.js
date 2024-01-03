@@ -3,9 +3,7 @@ import { promisify } from 'util';
 
 class RedisClient {
   constructor() {
-    console.log('about to create redis client...');
     this.client = redis.createClient();
-    console.log('client successfully created');
     this.client.ping();
     this.asyncGet = promisify(this.client.get).bind(this.client);
     this.asyncSetex = promisify(this.client.setex).bind(this.client);

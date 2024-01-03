@@ -48,7 +48,6 @@ export const getHomePage = async (req, res, next) => {
       if (cachedData) {
         // Parse cached data and set it to a local variable
         const parsedData = JSON.parse(cachedData);
-        console.log(parsedData);
 
         // Render the index template with locals and pagination data
         return res.render('index', {

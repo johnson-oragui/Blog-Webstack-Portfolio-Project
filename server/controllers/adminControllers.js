@@ -250,8 +250,6 @@ export const getAddPost = async (req, res, next) => {
       res.locals.categoryValue = '';
       res.locals.bodyValue = '';
 
-      // console.log('userToken from getAddPost route: ', req.cookies.token);
-
       // Render the add post view with default values and a success message
       return res.render('admin/add-post', {
         userToken: req.cookies.token,
@@ -281,7 +279,6 @@ export const postAddPost = async (req, res, next) => {
       res.locals.userToken = req.cookies.token;
       res.locals.title = 'Add post Page';
       res.locals.description = 'Add post';
-      console.log('userToken from postAddPost route: ', req.cookies.token);
 
       // Extract data from request body
       const { title, category, body } = req.body;
