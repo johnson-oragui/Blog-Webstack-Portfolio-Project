@@ -2,8 +2,8 @@ import Post from '../models/post';
 import User from '../models/user';
 import ArchivedPost from '../models/archived-post';
 import { checkHashedPwd } from '../utils/bcryptUtils';
-import { generateAcessToken, verifyAccessToken } from '../routes/authMiddleware/generateVerifyAccessToken';
-import { generateRefreshToken } from '../routes/authMiddleware/generateFreshToken';
+import { generateAcessToken, verifyAccessToken } from '../routes/tokenHelpers/generateVerifyAccessToken';
+import { generateRefreshToken } from '../routes/tokenHelpers/generateFreshToken';
 
 const adminLayout = '../views/layouts/admin';
 
