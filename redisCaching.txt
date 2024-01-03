@@ -1,0 +1,182 @@
+to cache the data from Post collection:
+
+i set up a session middleware in my express app, by first importing
+
+import RedisStore from 'connect-redis';
+
+and then went ahead to set up a session middleware
+
+// Set up session middleware with Redis
+app.use(session({
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Set to true in production if using HTTPS
+    httpOnly: true, // Ensures that the cookie is only accessible by the web server.
+    sameSite: 'strict', // Protects against cross-site request forgery attacks
+  },
+}));
+
+I set store to new RedisStore and passed in the redisClient which I
+created next in the server/dbUtils/redisClient.js
+
+import * as redis from 'redis';
+import { promisify } from 'util';
+
+class RedisClient {
+  constructor() {
+    console.log('about to create redis client...');
+    this.client = redis.createClient();
+    console.log('client successfully created');
+    this.client.ping();
+    this.asyncGet = promisify(this.client.get).bind(this.client);
+    this.asyncSetex = promisify(this.client.setex).bind(this.client);
+    this.asyncDel = promisify(this.client.del).bind(this.client);
+    this.asyncQuit = promisify(this.client.quit).bind(this.client);
+
+    // Handle Redis client connection events
+    this.client.on('connect', () => {
+      console.log('Connected to redis server');
+    });
+
+    this.client.on('ready', () => {
+      console.log('Redis client is ready');
+    });
+
+    this.client.on('error', (error) => {
+      console.log(`Error Connecting to redis server: ${error.message}`);
+    });
+
+    this.client.on('close', () => {
+      console.log('Closed connection');
+    });
+  }
+
+  /**
+  * Gets the value associated with the specified key from the Redis server.
+  *
+  * @param {string} key - The key to get the value for.
+  * @returns {Promise<string>} A promise that resolves to the value associated with
+  *                           the specified key, or null if the key does not exist.
+  */
+  async get(key) {
+    try {
+      if (this.client.status === 'end') {
+        console.log('reconnecting to client');
+        this.client = await redis.createClient();
+      }
+      const value = await this.asyncGet(key);
+      return value;
+    } catch (error) {
+      console.error('error in asyncGet method', error.message);
+      throw error;
+    }
+  }
+
+  /**
+  * Gets the value associated with the specified key from the Redis server.
+  *
+  * @param {string} key - The key to get the value for.
+  * @returns {Promise<string>} A promise that resolves to the value associated with
+  *                           the specified key, or null if the key does not exist.
+  */
+  async setex(key, value, duration) {
+    try {
+      return await this.asyncSetex(key, value, duration);
+    } catch (error) {
+      console.error('error in asyncSetex method', error.message);
+      throw error;
+    }
+  }
+
+  /**
+  * Sets the value associated with the specified key in the Redis server.
+  *
+  * @param {string} key - The key to set the value for.
+  * @param {string} value - The value to set.
+  * @param {number} duration - The duration in seconds for which the key should exist.
+  */
+  async delete(key) {
+    try {
+      return await this.asyncDel(key);
+    } catch (error) {
+      console.error('error in asyncDel method', error.message);
+      throw error;
+    }
+  }
+
+  /**
+  * Closes the connection to the Redis server.
+  *
+  * @returns {Promise<void>} A promise that resolves when the connection has been closed.
+  */
+  async close() {
+    try {
+      return await this.asyncQuit();
+    } catch (error) {
+      console.error('error in asyncQuit method', error.message);
+      throw error;
+    }
+  }
+}
+
+const redisClient = new RedisClient();
+export default redisClient;
+
+
+Making sure to use promisify from util to interract with redisClient to
+ensure getting the right response.
+
+
+I created a middleware to handle the caching of data in server/middleware/cacheMiddleware.js
+
+import redisClient from '../dbUtils/redisClient';
+
+const cacheMiddleware = async (req, res, next) => {
+  try {
+    const key = `__blog__.${req.originalUrl}`;
+
+    const data = await redisClient.get(key);
+
+    if (data !== null) {
+      // send data as a response
+      res.send(JSON.parse(data));
+    } else {
+      // if data not found in redis, move to the route handler
+      next();
+    }
+  } catch (error) {
+    console.error('error in cacheMiddleware route handler', error);
+    next(error);
+  }
+};
+
+export default cacheMiddleware;
+
+
+And then create a file to handle using the cache middleware in the route
+where i want to enable caching in server/routes/redisRouteHandler.js
+
+/* eslint-disable import/no-extraneous-dependencies */
+import express from 'express';
+import cacheMiddleware from '../middleWare/cacheMiddleware';
+import { getHomePage } from '../controllers/mainController';
+
+const redisRouter = express.Router();
+
+// apply caching middleware to the route
+redisRouter.get('/', cacheMiddleware, getHomePage);
+
+export default redisRouter;
+
+
+and then updated the server/controllers/mainController.js.getHomePage()
+to get and setex data caching, and also paginate the cached data.
+
+
+and finally updated the views/index.ejs to convert the date string from
+redis cache back to javascript Date object before rendering
+
+
