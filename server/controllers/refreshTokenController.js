@@ -1,5 +1,5 @@
-import { generateRefreshToken, verifyRefreshToken } from '../routes/authMiddleware/generateFreshToken';
-import { generateAcessToken, verifyAccessToken } from '../routes/authMiddleware/generateVerifyAccessToken';
+import { generateRefreshToken, verifyRefreshToken } from '../routes/tokenHelpers/generateFreshToken';
+import { generateAcessToken, verifyAccessToken } from '../routes/tokenHelpers/generateVerifyAccessToken';
 
 /**
  * @description Middleware to refresh the user's access token using the refresh token
