@@ -15,7 +15,7 @@ import {
   getArchivedPosts,
 } from '../controllers/adminControllers';
 import postRegPage from '../controllers/registrationController';
-import authenticationMiddleware from './authMiddleware/authMiddleware';
+import authenticationMiddleware from '../middleWare/authMiddleware';
 import refreshTokenRouter from './refreshTokenRouter';
 
 const router = express.Router();
