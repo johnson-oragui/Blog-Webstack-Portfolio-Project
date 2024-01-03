@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import morgan from 'morgan';
 import fs from 'fs';
 import path from 'path';
@@ -5,14 +6,17 @@ import cookieParser from 'cookie-parser';
 import MongoStore from 'connect-mongo';
 import session from 'express-session';
 import express from 'express';
+import RedisStore from 'connect-redis';
 import expressEjsLayouts from 'express-ejs-layouts';
 import methodOverride from 'method-override';
 import mainRouter from './server/routes/main';
 import errorRouter from './server/routes/error';
 import adminRouter from './server/routes/admin';
-import dbConnect from './utils/db';
+import dbConnect from './server/dbUtils/db';
+import redisClient from './server/dbUtils/redisClient';
+
 // import error middlewar
-import errorMiddleware from './server/errorMiddleware';
+import errorMiddleware from './server/middleWare/errorMiddleware';
 
 const rotatingFileStream = require('rotating-file-stream');
 
@@ -56,6 +60,20 @@ app.use(session({
     sameSite: 'strict', // Protects against cross-site request forgery attacks
   },
 }));
+
+// Set up session middleware with Redis
+app.use(session({
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production', // Set to true in production if using HTTPS
+    httpOnly: true, // Ensures that the cookie is only accessible by the web server.
+    sameSite: 'strict', // Protects against cross-site request forgery attacks
+  },
+}));
+
 // The session middleware adds a req.session object to each request, allowing the storage
 //  and retrieval of data specific to a user's session.
 app.use(methodOverride('_method'));
