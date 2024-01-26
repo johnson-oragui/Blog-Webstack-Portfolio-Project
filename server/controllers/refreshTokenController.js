@@ -27,9 +27,14 @@ export default async function refreshToken(req, res, next) {
       // Verify the refresh token
       const refreshVerification = verifyRefreshToken(refreshToken);
 
-      // If refresh token verification fails, redirect to login
+      // If refresh token verification fails
       if (!refreshVerification.success) {
         console.error('Refresh token verification failed');
+        // clear the token
+        res.clearCookie('token');
+        // clear refreshToken
+        res.clearCookie('refreshToken');
+        // redirect to login
         return res.redirect('/login');
       }
 
