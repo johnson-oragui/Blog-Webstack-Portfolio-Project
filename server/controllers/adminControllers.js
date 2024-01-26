@@ -426,6 +426,8 @@ export const postEditPost = async (req, res, next) => {
         res.locals.message = 'Updated successfully';
         res.locals.data = '';
         res.locals.posts = await Post.find();
+        res.locals.nextPage = req.params;
+        res.locals.current = req.params;
 
         // Render the admin dashboard view
         return res.render('admin/dashboard');
@@ -504,6 +506,8 @@ export const postDeletePost = async (req, res, next) => {
       res.locals.posts = await Post.find();
       res.locals.layout = adminLayout;
       res.locals.userToken = req.cookies.token;
+      res.locals.nextPage = req.params;
+      res.locals.current = req.params;
 
       // Render the admin dashboard view
       return res.render('admin/dashboard');
